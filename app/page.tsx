@@ -37,63 +37,13 @@ import {
   AlignRight,
   Layout,
   SlidersHorizontal,
-  MousePointerClick
+  MousePointerClick,
+  Menu
 } from 'lucide-react';
 
-
-export interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-export interface Presell {
-  id: string;
-  titulo: string;
-  subtitulo: string;
-  imageUrl: string;
-  ctaText: string;
-  ctaLink: string;
-  ctaColor: string;
-  themeColor: string; 
-  textColor: string;  
-  borderRadius: number;
-  faq: FAQItem[];
-  updatedAt: string;
-  hasImageBorder: boolean;
-  fontSizeTitulo: number;     
-  fontSizeSubtitulo: number;  
-  
-  // Timer de Escassez
-  timerEnabled: boolean;
-  timerDuration: number;      
-  timerText: string;          
-  timerBgColor: string;
-  timerTextColor: string;
-  timerBorderRadius: number;
-
-  // Aviso Superior (Urgência)
-  avisoEnabled: boolean;
-  avisoTopo: string;
-  avisoPulse: boolean;
-  avisoBgColor: string;
-  avisoTextColor: string;
-  avisoWidth: 'full' | 'card'; 
-  avisoPosition: 'sticky' | 'top-card'; 
-
-  // Badge de Destaque Superior
-  badgeEnabled: boolean;
-  badgeText: string;
-  badgePulse: boolean;
-  badgeBgColor: string;
-  badgeTextColor: string;
-  
-  // Controles de Imagem Avançados
-  imageWidth: number;         
-  imageAlign: 'left' | 'center' | 'right';
-  imagePosition: 'top' | 'middle' | 'bottom'; 
-  imageFit: 'cover' | 'contain' | 'fill' | 'scale-down';
-  imageFullBleed: boolean; // Se a imagem encosta nas bordas laterais do card
-}
+import { Presell, FAQItem } from './types/presell';
+import { PresellCard } from './components/PresellCard';
+import { AllPresellsModal } from './components/AllPresellsModal';
 
 interface ColorPreset {
   name: string;
@@ -155,6 +105,30 @@ export default function App() {
   const [imageFit, setImageFit] = useState<'cover' | 'contain' | 'fill' | 'scale-down'>('cover');
   const [imageFullBleed, setImageFullBleed] = useState<boolean>(false);
 
+  // Header e Footer Personalizados
+  const [headerEnabled, setHeaderEnabled] = useState<boolean>(true);
+  const [headerBrand, setHeaderBrand] = useState<string>('FastPresell');
+  const [headerMenuRaw, setHeaderMenuRaw] = useState<string>('Sobre,Oferta,Contato');
+  const [headerBgColor, setHeaderBgColor] = useState<string>('#020617');
+  const [headerTextColor, setHeaderTextColor] = useState<string>('#ffffff');
+  const [contentAlignment, setContentAlignment] = useState<'left' | 'center' | 'right'>('center');
+
+  const [footerEnabled, setFooterEnabled] = useState<boolean>(true);
+  const [footerText, setFooterText] = useState<string>('Todos os direitos reservados.');
+  const [footerBgColor, setFooterBgColor] = useState<string>('#020617');
+  const [footerTextColor, setFooterTextColor] = useState<string>('#94a3b8');
+  const [footerPosition, setFooterPosition] = useState<'left' | 'center' | 'right'>('center');
+
+  const [previewMenuOpen, setPreviewMenuOpen] = useState<boolean>(false);
+
+  const isDraftCard = (item: Presell) => {
+    const draftFromFields = !item.titulo?.trim() || !item.ctaLink?.trim();
+    if (item.id === activeId) {
+      return !titulo.trim() || !ctaLink.trim();
+    }
+    return draftFromFields;
+  };
+
   // Controle de interface gráfica
   const [previewDevice, setPreviewDevice] = useState<'mobile' | 'desktop'>('mobile'); 
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -165,6 +139,9 @@ export default function App() {
   const [imageError, setImageError] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [importJsonText, setImportJsonText] = useState<string>('');
+  const [showAllPresells, setShowAllPresells] = useState<boolean>(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [exportFileName, setExportFileName] = useState<string>('index');
   
   // Custom Confirmation Modal
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -261,7 +238,20 @@ export default function App() {
     imageAlign: 'center',
     imagePosition: 'bottom',
     imageFit: 'cover',
-    imageFullBleed: false
+    imageFullBleed: false,
+
+    headerEnabled: true,
+    headerBrand: 'FastPresell',
+    headerMenuRaw: 'Sobre,Oferta,Contato',
+    headerBgColor: '#020617',
+    headerTextColor: '#ffffff',
+    contentAlignment: 'center',
+
+    footerEnabled: true,
+    footerText: 'Todos os direitos reservados.',
+    footerBgColor: '#020617',
+    footerTextColor: '#94a3b8',
+    footerPosition: 'center'
   };
 
   useEffect(() => {
@@ -313,6 +303,150 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const getCurrentPresellSnapshot = () => JSON.stringify({
+    titulo,
+    subtitulo,
+    imageUrl,
+    ctaText,
+    ctaLink,
+    ctaColor,
+    themeColor,
+    textColor,
+    borderRadius,
+    faqList,
+    hasImageBorder,
+    fontSizeTitulo,
+    fontSizeSubtitulo,
+    timerEnabled,
+    timerDuration,
+    timerText,
+    timerBgColor,
+    timerTextColor,
+    timerBorderRadius,
+    avisoEnabled,
+    avisoTopo,
+    avisoPulse,
+    avisoBgColor,
+    avisoTextColor,
+    avisoWidth,
+    avisoPosition,
+    badgeEnabled,
+    badgeText,
+    badgePulse,
+    badgeBgColor,
+    badgeTextColor,
+    imageWidth,
+    imageAlign,
+    imagePosition,
+    imageFit,
+    imageFullBleed
+  });
+
+  const getPresellSnapshot = (item: Presell) => JSON.stringify({
+    titulo: item.titulo,
+    subtitulo: item.subtitulo,
+    imageUrl: item.imageUrl,
+    ctaText: item.ctaText,
+    ctaLink: item.ctaLink,
+    ctaColor: item.ctaColor,
+    themeColor: item.themeColor,
+    textColor: item.textColor,
+    borderRadius: item.borderRadius,
+    faqList: item.faq,
+    hasImageBorder: item.hasImageBorder,
+    fontSizeTitulo: item.fontSizeTitulo,
+    fontSizeSubtitulo: item.fontSizeSubtitulo,
+    timerEnabled: item.timerEnabled,
+    timerDuration: item.timerDuration,
+    timerText: item.timerText,
+    timerBgColor: item.timerBgColor,
+    timerTextColor: item.timerTextColor,
+    timerBorderRadius: item.timerBorderRadius,
+    avisoEnabled: item.avisoEnabled,
+    avisoTopo: item.avisoTopo,
+    avisoPulse: item.avisoPulse,
+    avisoBgColor: item.avisoBgColor,
+    avisoTextColor: item.avisoTextColor,
+    avisoWidth: item.avisoWidth,
+    avisoPosition: item.avisoPosition,
+    badgeEnabled: item.badgeEnabled,
+    badgeText: item.badgeText,
+    badgePulse: item.badgePulse,
+    badgeBgColor: item.badgeBgColor,
+    badgeTextColor: item.badgeTextColor,
+    imageWidth: item.imageWidth,
+    imageAlign: item.imageAlign,
+    imagePosition: item.imagePosition,
+    imageFit: item.imageFit,
+    imageFullBleed: item.imageFullBleed
+  });
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = 'Você tem alterações não salvas. Tem certeza de que deseja sair?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
+    if (!activeId) {
+      setHasUnsavedChanges(false);
+      return;
+    }
+
+    const activeItem = presells.find((item) => item.id === activeId);
+    if (!activeItem) {
+      setHasUnsavedChanges(true);
+      return;
+    }
+
+    setHasUnsavedChanges(getCurrentPresellSnapshot() !== getPresellSnapshot(activeItem));
+  }, [
+    activeId,
+    presells,
+    titulo,
+    subtitulo,
+    imageUrl,
+    ctaText,
+    ctaLink,
+    ctaColor,
+    themeColor,
+    textColor,
+    borderRadius,
+    faqList,
+    hasImageBorder,
+    fontSizeTitulo,
+    fontSizeSubtitulo,
+    timerEnabled,
+    timerDuration,
+    timerText,
+    timerBgColor,
+    timerTextColor,
+    timerBorderRadius,
+    avisoEnabled,
+    avisoTopo,
+    avisoPulse,
+    avisoBgColor,
+    avisoTextColor,
+    avisoWidth,
+    avisoPosition,
+    badgeEnabled,
+    badgeText,
+    badgePulse,
+    badgeBgColor,
+    badgeTextColor,
+    imageWidth,
+    imageAlign,
+    imagePosition,
+    imageFit,
+    imageFullBleed
+  ]);
+
   const loadPresell = (item: Presell) => {
     setActiveId(item.id);
     setTitulo(item.titulo || '');
@@ -359,55 +493,86 @@ export default function App() {
     setImagePosition(item.imagePosition || 'bottom');
     setImageFit(item.imageFit || 'cover');
     setImageFullBleed(item.imageFullBleed === true);
+
+    // Header & Footer
+    setHeaderEnabled(item.headerEnabled !== false);
+    setHeaderBrand(item.headerBrand || 'FastPresell');
+    setHeaderMenuRaw(item.headerMenuRaw || 'Sobre,Oferta,Contato');
+    setHeaderBgColor(item.headerBgColor || '#020617');
+    setHeaderTextColor(item.headerTextColor || '#ffffff');
+    setContentAlignment(item.contentAlignment || 'center');
+    setFooterEnabled(item.footerEnabled !== false);
+    setFooterText(item.footerText || 'Todos os direitos reservados.');
+    setFooterBgColor(item.footerBgColor || '#020617');
+    setFooterTextColor(item.footerTextColor || '#94a3b8');
+    setFooterPosition(item.footerPosition || 'center');
+    setHasUnsavedChanges(false);
   };
 
   const handleNewClick = () => {
     const newId = 'id_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
-    setActiveId(newId);
-    setTitulo('');
-    setSubtitulo('');
-    setImageUrl('');
-    setCtaText('');
-    setCtaLink('');
-    setCtaColor('#22c55e');
-    setThemeColor('#0b0f19');
-    setTextColor('#ffffff');
-    setBorderRadius(16);
-    setFaqList([]);
-    setHasImageBorder(true);
-    setFontSizeTitulo(28);
-    setFontSizeSubtitulo(14);
-    
-    // Resetando Timer
-    setTimerEnabled(false);
-    setTimerDuration(15);
-    setTimerText('A oferta expira em:');
-    setTimerBgColor('#020617');
-    setTimerTextColor('#ffffff');
-    setTimerBorderRadius(12);
+    const newPresell: Presell = {
+      id: newId,
+      titulo: '',
+      subtitulo: '',
+      imageUrl: '',
+      ctaText: '',
+      ctaLink: '',
+      ctaColor: '#22c55e',
+      themeColor: '#0b0f19',
+      textColor: '#ffffff',
+      borderRadius: 16,
+      faq: [],
+      updatedAt: new Date().toISOString(),
+      hasImageBorder: true,
+      fontSizeTitulo: 28,
+      fontSizeSubtitulo: 14,
+      timerEnabled: false,
+      timerDuration: 15,
+      timerText: 'A oferta expira em:',
+      timerBgColor: '#020617',
+      timerTextColor: '#ffffff',
+      timerBorderRadius: 12,
+      avisoEnabled: false,
+      avisoTopo: '',
+      avisoPulse: true,
+      avisoBgColor: '#dc2626',
+      avisoTextColor: '#ffffff',
+      avisoWidth: 'full',
+      avisoPosition: 'sticky',
+      badgeEnabled: false,
+      badgeText: '',
+      badgePulse: false,
+      badgeBgColor: '#1e1b4b',
+      badgeTextColor: '#c084fc',
+      imageWidth: 100,
+      imageAlign: 'center',
+      imagePosition: 'bottom',
+      imageFit: 'cover',
+      imageFullBleed: false,
 
-    // Resetando Aviso
-    setAvisoEnabled(false);
-    setAvisoTopo('');
-    setAvisoPulse(true);
-    setAvisoBgColor('#dc2626');
-    setAvisoTextColor('#ffffff');
-    setAvisoWidth('full');
-    setAvisoPosition('sticky');
+      headerEnabled: true,
+      headerBrand: 'FastPresell',
+      headerMenuRaw: 'Sobre,Oferta,Contato',
+      headerBgColor: '#020617',
+      headerTextColor: '#ffffff',
+      contentAlignment: 'center',
 
-    // Resetando Badge
-    setBadgeEnabled(false);
-    setBadgeText('');
-    setBadgePulse(false);
-    setBadgeBgColor('#1e1b4b');
-    setBadgeTextColor('#c084fc');
+      footerEnabled: true,
+      footerText: 'Todos os direitos reservados.',
+      footerBgColor: '#020617',
+      footerTextColor: '#94a3b8',
+      footerPosition: 'center'
+    };
 
-    setImageWidth(100);
-    setImageAlign('center');
-    setImagePosition('bottom');
-    setImageFit('cover');
-    setImageFullBleed(false);
-    showToast('Novo projeto limpo pronto para personalização!');
+    const nextList = [newPresell, ...presells];
+    setPresells(nextList);
+    localStorage.setItem('v3_presell_items', JSON.stringify(nextList));
+    if (!activeId) {
+      loadPresell(newPresell);
+    }
+    setHasUnsavedChanges(false);
+    showToast('Novo projeto criado. O projeto atual permanece selecionado.');
   };
 
   const handleSavePresell = () => {
@@ -467,7 +632,20 @@ export default function App() {
       imageAlign,
       imagePosition,
       imageFit,
-      imageFullBleed
+      imageFullBleed,
+
+      headerEnabled,
+      headerBrand,
+      headerMenuRaw,
+      headerBgColor,
+      headerTextColor,
+      contentAlignment,
+
+      footerEnabled,
+      footerText,
+      footerBgColor,
+      footerTextColor,
+      footerPosition
     };
 
     let updatedList: Presell[];
@@ -480,6 +658,7 @@ export default function App() {
 
     setPresells(updatedList);
     localStorage.setItem('v3_presell_items', JSON.stringify(updatedList));
+    setHasUnsavedChanges(false);
     showToast(isNew ? '✨ Presell criada com sucesso!' : '💾 Alterações gravadas!');
   };
 
@@ -585,7 +764,20 @@ export default function App() {
           imageAlign: parsed.imageAlign || 'center',
           imagePosition: parsed.imagePosition || 'bottom',
           imageFit: parsed.imageFit || 'cover',
-          imageFullBleed: parsed.imageFullBleed === true
+          imageFullBleed: parsed.imageFullBleed === true,
+
+          headerEnabled: parsed.headerEnabled !== false,
+          headerBrand: String(parsed.headerBrand || 'FastPresell'),
+          headerMenuRaw: String(parsed.headerMenuRaw || 'Sobre,Oferta,Contato'),
+          headerBgColor: String(parsed.headerBgColor || '#020617'),
+          headerTextColor: String(parsed.headerTextColor || '#ffffff'),
+          contentAlignment: parsed.contentAlignment || 'center',
+
+          footerEnabled: parsed.footerEnabled !== false,
+          footerText: String(parsed.footerText || 'Todos os direitos reservados.'),
+          footerBgColor: String(parsed.footerBgColor || '#020617'),
+          footerTextColor: String(parsed.footerTextColor || '#94a3b8'),
+          footerPosition: parsed.footerPosition || 'center'
         };
 
         const listWithoutDuplicated = presells.filter(p => p.id !== validatedItem.id);
@@ -655,224 +847,211 @@ export default function App() {
   const generateHTML = (): string => {
     const safeTitle = titulo.replace(/"/g, '&quot;');
     const isThemeGradient = themeColor.includes('linear-gradient') || themeColor.includes('radial-gradient');
-    const alignClassValue = imageAlign === 'left' ? 'justify-start text-left' : imageAlign === 'right' ? 'justify-end text-right' : 'justify-center text-center';
-    
-    // Estilos de borda da imagem
-    const imageStyle = hasImageBorder 
-      ? `border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5), 0 0 15px ${ctaColor}20;` 
-      : 'border: none; box-shadow: none;';
+    const cardAlignClass = imageAlign === 'left' ? 'justify-start text-left' : imageAlign === 'right' ? 'justify-end text-right' : 'justify-center text-center';
+    const contentAlignClass = contentAlignment === 'left' ? 'text-left' : contentAlignment === 'right' ? 'text-right' : 'text-center';
+    const contentItemsClass = contentAlignment === 'left' ? 'items-start' : contentAlignment === 'right' ? 'items-end' : 'items-center';
+    const contentJustifyClass = contentAlignment === 'left' ? 'justify-start' : contentAlignment === 'right' ? 'justify-end' : 'justify-center';
 
-    // Se houver "card bleed", estica a imagem compensando o padding do container
-    const isBleed = imageFullBleed;
-    const bleedClasses = isBleed ? `mx-[-1.5rem] md:mx-[-2rem] w-[calc(100%+3rem)] md:w-[calc(100%+4rem)] rounded-none` : `w-full`;
-    const bleedBorderRadiusStyle = isBleed ? 'border-radius: 0px;' : `border-radius: ${Math.max(4, borderRadius - 4)}px;`;
+    const escapeHtml = (value: string) =>
+      String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 
-    const imageElementHTML = imageUrl ? `
-    <div class="flex w-full ${alignClassValue.split(' ')[0]} mb-6">
-        <div class="relative overflow-hidden aspect-video transition-all duration-300 ${bleedClasses}"
-             style="width: ${isBleed ? 'auto' : imageWidth + '%'}; ${bleedBorderRadiusStyle} ${imageStyle}">
-            <img 
-                src="${imageUrl}" 
-                alt="Imagem de Oferta" 
-                class="w-full h-full"
-                style="object-fit: ${imageFit};"
-                loading="lazy"
-            />
+    const safeCtaText = escapeHtml(ctaText || 'QUERO MEU ACESSO AGORA');
+    const safeCtaLink = escapeHtml(ctaLink || '#');
+    const safeHeaderBrand = escapeHtml(headerBrand || 'FastPresell');
+    const safeFooterText = escapeHtml(footerText || `© ${new Date().getFullYear()} Todos os direitos reservados.`);
+    const headerItems = headerMenuRaw.split(',').map((item) => item.trim()).filter(Boolean);
+
+    const cardImageHtml = imageUrl ? `
+      <div class="flex w-full mb-6 ${cardAlignClass.split(' ')[0]} ${imageFullBleed ? 'mx-[-1.25rem] md:mx-[-2rem] w-[calc(100%+2.5rem)] md:w-[calc(100%+4rem)] rounded-none' : ''}">
+        <div class="relative overflow-hidden aspect-video transition-all duration-300"
+             style="width: ${imageFullBleed ? '100%' : `${imageWidth}%`}; border-radius: ${imageFullBleed ? '0px' : `${Math.max(4, borderRadius - 4)}px`}; border: ${hasImageBorder && !imageFullBleed ? '2px solid rgba(255,255,255,0.15)' : 'none'}; box-shadow: ${hasImageBorder && !imageFullBleed ? `0 10px 20px rgba(0,0,0,0.5), 0 0 15px ${ctaColor}15` : 'none'};">
+          <img src="${escapeHtml(imageUrl)}" alt="Imagem de Oferta" class="w-full h-full" style="object-fit: ${imageFit};" loading="lazy" />
         </div>
-    </div>` : '';
+      </div>` : '';
 
     const renderAvisoHTML = () => {
       if (!avisoEnabled || !avisoTopo) return '';
-      const layoutClass = avisoWidth === 'full' ? 'w-full' : 'max-w-xl mx-auto rounded-xl mt-4';
-      const positionClass = avisoPosition === 'sticky' && avisoWidth === 'full' ? 'sticky top-0 z-50' : 'relative';
+      const layoutClass = avisoWidth === 'full' ? 'w-full' : 'mx-4 mt-2 rounded-xl';
       const pulseClass = avisoPulse ? 'animate-pulse' : '';
-      
-      return `<div class="${positionClass} ${layoutClass} ${pulseClass} text-center text-xs md:text-sm font-semibold py-2.5 px-4 shadow-md" style="background-color: ${avisoBgColor}; color: ${avisoTextColor};">
-        ${avisoTopo}
+      return `<div class="text-center text-[10px] md:text-xs font-bold py-1.5 px-3 shadow-md tracking-wide z-10 ${pulseClass} ${layoutClass}" style="background-color: ${avisoBgColor}; color: ${avisoTextColor};">
+        ${escapeHtml(avisoTopo)}
       </div>`;
     };
 
     const renderBadgeHTML = () => {
       if (!badgeEnabled || !badgeText) return '';
       const pulseClass = badgePulse ? 'animate-pulse' : '';
-      return `<div class="flex justify-center mb-5 ${pulseClass}">
-          <span class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-full border border-opacity-20 uppercase tracking-wider" style="background-color: ${badgeBgColor}; color: ${badgeTextColor}; border-color: ${badgeTextColor}40;">
-              <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${badgeTextColor};"></span>
-              ${badgeText}
-          </span>
+      return `<div class="mb-4 flex justify-center ${pulseClass}">
+        <span class="inline-flex items-center gap-1 text-[10px] font-black px-3.5 py-1 rounded-full border uppercase tracking-widest" style="background-color: ${badgeBgColor}; color: ${badgeTextColor}; border-color: ${badgeTextColor}30;">
+          ${escapeHtml(badgeText)}
+        </span>
       </div>`;
     };
+
+    const faqHtml = faqList && faqList.length > 0 ? `
+      <div class="w-full mt-6 pt-6 border-t border-slate-800/60">
+        <h4 class="text-xs font-black uppercase ${contentAlignClass} tracking-wider mb-3">Dúvidas Frequentes</h4>
+        <div class="space-y-2">
+          ${faqList.map((item) => `
+            <details class="group bg-slate-950/50 border border-slate-850 p-3 rounded-lg transition-all">
+              <summary class="flex items-center justify-between cursor-pointer focus:outline-none text-[11px] font-extrabold text-white">
+                <span>${escapeHtml(item.question)}</span>
+                <span>▼</span>
+              </summary>
+              <p class="text-[10px] text-slate-300 mt-2 leading-relaxed border-t border-slate-800/40 pt-2 whitespace-pre-wrap">
+                ${escapeHtml(item.answer).replace(/\n/g, '<br />')}
+              </p>
+            </details>
+          `).join('')}
+        </div>
+      </div>` : '';
+
+    const headerLinksHtml = headerItems.length > 0 ? headerItems.map((item) => `
+        <a href="#" class="text-[12px] font-semibold transition hover:text-white">${escapeHtml(item)}</a>
+      `).join('') : '';
+
+    const headerHtml = headerEnabled ? `
+      <header class="sticky top-0 left-0 right-0 z-50 backdrop-blur-xl border-b border-white/10" style="background: ${headerBgColor}; color: ${headerTextColor};">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+          <span class="font-black uppercase tracking-[0.24em] text-xs">${safeHeaderBrand}</span>
+          <nav class="hidden md:flex items-center gap-4">
+            ${headerLinksHtml}
+          </nav>
+          <button type="button" onclick="togglePresellMenu()" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-2xl border border-white/10 text-white/90">
+            ☰
+          </button>
+        </div>
+        <div id="presell-nav-menu" class="hidden md:hidden px-4 pb-4 pt-2 border-t border-white/10 flex flex-col gap-2">
+          ${headerLinksHtml}
+        </div>
+      </header>
+    ` : '';
+
+    const footerHtml = footerEnabled ? `
+      <footer class="w-full mt-6 border-t border-slate-800/80">
+        <div class="py-4 text-sm" style="background-color: ${footerBgColor}; color: ${footerTextColor}; text-align: ${footerPosition};">
+          ${safeFooterText}
+        </div>
+      </footer>
+    ` : '';
 
     return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${safeTitle}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: ${isThemeGradient ? themeColor : 'none'};
-            background-color: ${isThemeGradient ? 'transparent' : themeColor};
-            color: ${textColor};
-        }
-        .pulse-btn {
-            animation: pulse-animation 2.2s infinite;
-        }
-        @keyframes pulse-animation {
-            0% { transform: scale(1); box-shadow: 0 0 0 0px ${ctaColor}80; }
-            70% { transform: scale(1.03); box-shadow: 0 0 0 12px ${ctaColor}00; }
-            100% { transform: scale(1); box-shadow: 0 0 0 0px ${ctaColor}00; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${safeTitle}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: ${isThemeGradient ? themeColor : 'none'};
+      background-color: ${isThemeGradient ? 'transparent' : themeColor};
+      color: ${textColor};
+      scroll-behavior: smooth;
+    }
+    .pulse-btn {
+      animation: pulse-animation 2.2s infinite;
+    }
+    @keyframes pulse-animation {
+      0% { transform: scale(1); box-shadow: 0 0 0 0px ${ctaColor}80; }
+      70% { transform: scale(1.03); box-shadow: 0 0 0 12px ${ctaColor}00; }
+      100% { transform: scale(1); box-shadow: 0 0 0 0px ${ctaColor}00; }
+    }
+    details summary::-webkit-details-marker { display:none; }
+    details summary::marker { display:none; }
+    details summary::after {
+      content: '▼';
+      transition: transform .2s ease;
+      display: inline-block;
+      margin-left: 0.75rem;
+    }
+    details[open] summary::after { transform: rotate(180deg); }
+  </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-violet-600 selection:text-white">
-
-    <!-- Aviso Superior de Urgência (Fora do container principal caso posicionado no topo) -->
-    ${avisoPosition === 'sticky' ? renderAvisoHTML() : ''}
-
-    <!-- Container do Card -->
-    <main class="flex-grow flex items-center justify-center px-4 py-8 md:py-16">
-        <div class="max-w-xl w-full bg-slate-900/40 border border-slate-800/80 p-6 md:p-8 shadow-2xl backdrop-blur-md overflow-hidden" 
-             style="border-radius: ${borderRadius}px; color: ${textColor};">
-            
-            <!-- Aviso Superior Posicionado no Card -->
-            ${avisoPosition === 'top-card' ? `<div class="mb-5">${renderAvisoHTML()}</div>` : ''}
-
-            <!-- Badge de Destaque -->
-            ${renderBadgeHTML()}
-
-            <!-- Imagem no Topo -->
-            ${imagePosition === 'top' ? imageElementHTML : ''}
-
-            <!-- Headline Principal -->
-            <h1 class="font-extrabold text-center leading-tight mb-4 tracking-tight"
-                style="font-size: ${fontSizeTitulo}px; color: ${textColor === '#ffffff' ? '#ffffff' : '#0f172a'};">
-                ${parseMarkdown(titulo)}
-            </h1>
-
-            <!-- Imagem no Meio -->
-            ${imagePosition === 'middle' ? imageElementHTML : ''}
-
-            <!-- Subtítulo -->
-            ${subtitulo ? `
-            <p class="text-center leading-relaxed mb-6 opacity-90"
-               style="font-size: ${fontSizeSubtitulo}px;">
-                ${parseMarkdown(subtitulo)}
-            </p>` : ''}
-
-            <!-- Imagem na Base -->
-            ${imagePosition === 'bottom' ? imageElementHTML : ''}
-
-            <!-- Timer de Escassez Customizado -->
-            ${timerEnabled ? `
-            <div class="border border-slate-800/50 p-4 mb-6 text-center" style="background-color: ${timerBgColor}; color: ${timerTextColor}; border-radius: ${timerBorderRadius}px;">
-                <p class="text-[11px] uppercase tracking-wider opacity-60 mb-2 font-bold">${timerText}</p>
-                <div class="flex items-center justify-center gap-3">
-                    <div class="flex flex-col">
-                        <span id="t-min" class="text-2xl font-black">00</span>
-                        <span class="text-[9px] opacity-40 uppercase">Minutos</span>
-                    </div>
-                    <span class="text-2xl font-bold opacity-40">:</span>
-                    <div class="flex flex-col">
-                        <span id="t-sec" class="text-2xl font-black">00</span>
-                        <span class="text-[9px] opacity-40 uppercase">Segundos</span>
-                    </div>
-                </div>
-            </div>` : ''}
-
-            <!-- Botão de CTA Pulsante -->
-            <div class="space-y-4">
-                <a 
-                    href="${ctaLink}" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="pulse-btn block w-full py-4 px-6 font-extrabold text-center text-white transition-all duration-300 transform hover:scale-[1.03] text-base md:text-lg uppercase tracking-wider"
-                    style="background-color: ${ctaColor}; border-radius: ${Math.max(4, borderRadius - 4)}px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);"
-                >
-                    ${ctaText || 'CLIQUE PARA CONTINUAR'}
-                </a>
-
-                <!-- Termos e Direitos de Privacidade -->
-                <div class="flex justify-center gap-4 text-[10px] md:text-xs text-slate-500 mt-6">
-                    <a href="#" class="hover:underline">Políticas de Privacidade</a>
-                    <span>•</span>
-                    <a href="#" class="hover:underline">Termos de Uso</a>
-                </div>
+  ${headerHtml}
+  ${avisoPosition === 'sticky' ? renderAvisoHTML() : ''}
+  <main class="flex-grow flex items-center justify-center px-4 py-8 md:py-16">
+    <div class="max-w-xl w-full bg-slate-900/40 border border-slate-800/80 p-6 md:p-8 shadow-2xl backdrop-blur-md overflow-hidden" style="border-radius: ${borderRadius}px; color: ${textColor};">
+      ${avisoPosition === 'top-card' ? `<div class="mb-5">${renderAvisoHTML()}</div>` : ''}
+      ${renderBadgeHTML()}
+      ${imagePosition === 'top' ? cardImageHtml : ''}
+      <h1 class="font-black leading-snug tracking-tight mb-3 ${contentAlignClass}" style="font-size: ${fontSizeTitulo}px; color: ${textColor === '#ffffff' ? '#ffffff' : '#0f172a'};">
+        ${parseMarkdown(titulo)}
+      </h1>
+      ${imagePosition === 'middle' ? cardImageHtml : ''}
+      ${subtitulo ? `<p class="opacity-90 leading-relaxed mb-5 ${contentAlignClass}" style="font-size: ${fontSizeSubtitulo}px;">${parseMarkdown(subtitulo)}</p>` : ''}
+      ${imagePosition === 'bottom' ? cardImageHtml : ''}
+      ${timerEnabled ? `
+        <div class="w-full p-4 mb-6 text-center border border-slate-800/40 shadow-md" style="background-color: ${timerBgColor}; color: ${timerTextColor}; border-radius: ${timerBorderRadius}px;">
+          <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest mb-2">${escapeHtml(timerText)}</p>
+          <div class="flex justify-center gap-3 items-center">
+            <div class="flex flex-col">
+              <span id="t-min" class="text-2xl font-black">00</span>
+              <span class="text-[9px] opacity-40 uppercase font-bold">Minutos</span>
             </div>
-
-            <!-- Seção de FAQ Acoplada -->
-            ${faqList && faqList.length > 0 ? `
-            <div class="mt-8 pt-8 border-t border-slate-800/80">
-                <h3 class="text-base md:text-lg font-black text-center mb-4 uppercase tracking-wider">Perguntas Frequentes</h3>
-                <div class="space-y-3">
-                    ${faqList.map((item) => `
-                    <details class="group bg-slate-950/45 border border-slate-800/80 p-4 rounded-xl transition-all duration-300 [&_summary::-webkit-details-marker]:hidden">
-                        <summary class="flex items-center justify-between cursor-pointer focus:outline-none list-none">
-                            <h4 class="text-sm font-extrabold pr-4 text-inherit">${item.question}</h4>
-                            <span class="transition-transform duration-300 group-open:rotate-180 text-violet-400">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </span>
-                        </summary>
-                        <p class="text-xs md:text-sm opacity-80 mt-3 leading-relaxed border-t border-slate-800/40 pt-3">
-                            ${item.answer.replace(/\n/g, '<br />')}
-                        </p>
-                    </details>
-                    `).join('')}
-                </div>
-            </div>` : ''}
-
+            <span class="text-xl font-bold opacity-40">:</span>
+            <div class="flex flex-col">
+              <span id="t-sec" class="text-2xl font-black">00</span>
+              <span class="text-[9px] opacity-40 uppercase font-bold">Segundos</span>
+            </div>
+          </div>
         </div>
-    </main>
-
-    <!-- Rodapé -->
-    <footer class="text-center py-4 text-[11px] text-slate-600 border-t border-slate-950 bg-slate-950/40">
-        <p>&copy; ${new Date().getFullYear()} - Todos os direitos reservados.</p>
-        <p class="mt-1">Este site não possui vínculo comercial com o Google ou Facebook.</p>
-    </footer>
-
-    <!-- Timer Script (Cookie/Local Persistente) -->
-    ${timerEnabled ? `
+      ` : ''}
+      <div class="w-full flex ${contentJustifyClass} mb-6">
+        <a href="${safeCtaLink}" target="_blank" rel="noopener noreferrer" class="pulse-btn block max-w-full text-center text-white py-3.5 px-5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all transform active:scale-95 shadow-lg" style="background-color: ${ctaColor}; border-radius: ${Math.max(4, borderRadius - 4)}px; box-shadow: 0 4px 14px 0 ${ctaColor}35; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+          ${safeCtaText}
+        </a>
+      </div>
+      ${faqHtml}
+      ${footerHtml}
+    </div>
+  </main>
+  ${timerEnabled ? `
     <script>
-        (function() {
-            const STORAGE_KEY = 'presell_t_end_' + '${activeId || 'p'}';
-            const durationMs = ${timerDuration} * 60 * 1000;
-            let targetTime = localStorage.getItem(STORAGE_KEY);
-            
-            if (!targetTime) {
-                targetTime = Date.now() + durationMs;
-                localStorage.setItem(STORAGE_KEY, targetTime);
-            } else {
-                targetTime = parseInt(targetTime);
-                if (Date.now() > targetTime) {
-                    targetTime = Date.now() + durationMs;
-                    localStorage.setItem(STORAGE_KEY, targetTime);
-                }
-            }
-
-            function updateTimer() {
-                const diff = targetTime - Date.now();
-                if (diff <= 0) {
-                    document.getElementById('t-min').innerText = '00';
-                    document.getElementById('t-sec').innerText = '00';
-                    return;
-                }
-                const min = Math.floor(diff / 1000 / 60);
-                const sec = Math.floor((diff / 1000) % 60);
-                
-                document.getElementById('t-min').innerText = String(min).padStart(2, '0');
-                document.getElementById('t-sec').innerText = String(sec).padStart(2, '0');
-            }
-
-            updateTimer();
-            setInterval(updateTimer, 1000);
-        })();
+      function togglePresellMenu() {
+        const menu = document.getElementById('presell-nav-menu');
+        if (!menu) return;
+        menu.classList.toggle('hidden');
+      }
+      (function() {
+        const STORAGE_KEY = 'presell_t_end_' + '${activeId || 'p'}';
+        const durationMs = ${timerDuration} * 60 * 1000;
+        let targetTime = localStorage.getItem(STORAGE_KEY);
+        if (!targetTime) {
+          targetTime = Date.now() + durationMs;
+          localStorage.setItem(STORAGE_KEY, targetTime);
+        } else {
+          targetTime = parseInt(targetTime, 10);
+          if (Date.now() > targetTime) {
+            targetTime = Date.now() + durationMs;
+            localStorage.setItem(STORAGE_KEY, targetTime);
+          }
+        }
+        function updateTimer() {
+          const diff = targetTime - Date.now();
+          if (diff <= 0) {
+            document.getElementById('t-min').innerText = '00';
+            document.getElementById('t-sec').innerText = '00';
+            return;
+          }
+          const min = Math.floor(diff / 1000 / 60);
+          const sec = Math.floor((diff / 1000) % 60);
+          document.getElementById('t-min').innerText = String(min).padStart(2, '0');
+          document.getElementById('t-sec').innerText = String(sec).padStart(2, '0');
+        }
+        updateTimer();
+        setInterval(updateTimer, 1000);
+      })();
     </script>` : ''}
-
 </body>
 </html>`;
   };
@@ -936,6 +1115,7 @@ export default function App() {
 
   const formatTime = formatPreviewTime();
   const isThemeGradient = themeColor.includes('linear-gradient') || themeColor.includes('radial-gradient');
+  const generatedExportHTML = generateHTML();
 
   // Helper para renderizar a imagem com tamanho, encaixe e posicionamento flexível
   const renderImage = () => {
@@ -1013,6 +1193,41 @@ export default function App() {
           {badgeText}
         </span>
       </div>
+    );
+  };
+
+  const renderPreviewHeader = () => {
+    if (!headerEnabled) return null;
+    const menuItems = headerMenuRaw.split(',').map((item) => item.trim()).filter(Boolean);
+    return (
+      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-900/70" style={{ backgroundColor: headerBgColor, color: headerTextColor }}>
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div className="text-[11px] font-black uppercase tracking-[0.24em]">{headerBrand}</div>
+          <nav className="hidden md:flex items-center gap-4">
+            {menuItems.map((item) => (
+              <button key={item} type="button" className="text-[11px] font-semibold text-white/85 hover:text-white transition">
+                {item}
+              </button>
+            ))}
+          </nav>
+          <button
+            type="button"
+            onClick={() => setPreviewMenuOpen((current) => !current)}
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-2xl border border-slate-800 text-white/85"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+        {previewMenuOpen && (
+          <div className="md:hidden px-4 pb-4 space-y-2 border-t border-slate-900/70">
+            {menuItems.map((item) => (
+              <button key={item} type="button" className="w-full text-left rounded-2xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-[12px] font-semibold text-white/90 hover:bg-slate-900 transition">
+                {item}
+              </button>
+            ))}
+          </div>
+        )}
+      </header>
     );
   };
 
@@ -1121,56 +1336,37 @@ export default function App() {
                 Nenhum projeto salvo. Comece digitando abaixo!
               </div>
             ) : (
-              <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800">
-                {presells.map((item) => {
-                  const isActive = item.id === activeId;
-                  return (
-                    <div 
+              <>
+                <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800">
+                  {presells.slice(0, 4).map((item) => (
+                    <PresellCard
                       key={item.id}
-                      onClick={() => loadPresell(item)}
-                      className={`flex-shrink-0 w-44 p-3 rounded-xl border transition-all cursor-pointer relative group ${
-                        isActive 
-                        ? 'bg-slate-800/80 border-violet-500/50 shadow-md' 
-                        : 'bg-slate-950/40 border-slate-850 hover:bg-slate-800/30'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start gap-1 mb-1.5">
-                        <span className="text-[9px] font-semibold text-slate-500 flex items-center gap-0.5">
-                          <Clock className="w-3 h-3" />
-                          {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('pt-BR') : 'Sem data'}
-                        </span>
-                        
-                        <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                          <button 
-                            title="Duplicar"
-                            onClick={(e) => handleDuplicatePresell(item, e)}
-                            className="p-1 rounded bg-slate-900 hover:bg-slate-700 text-slate-400 hover:text-white"
-                          >
-                            <Layers className="w-3 h-3" />
-                          </button>
-                          <button 
-                            title="Excluir"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteConfirmId(item.id);
-                            }}
-                            className="p-1 rounded bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-450"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </div>
+                      item={item}
+                      isActive={item.id === activeId}
+                      isDraft={isDraftCard(item)}
+                      onSelect={() => loadPresell(item)}
+                      onDuplicate={(e) => handleDuplicatePresell(item, e)}
+                      onDelete={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirmId(item.id);
+                      }}
+                    />
+                  ))}
+                </div>
 
-                      <h3 className="text-xs font-bold text-slate-200 truncate group-hover:text-white">
-                        {item.titulo.replace(/\*\*|\*|\[|\]\{(.*?)\}/g, '') || 'Nova Presell'}
-                      </h3>
-                      <p className="text-[10px] text-slate-500 mt-0.5 truncate">
-                        {item.ctaLink || 'Sem Link'}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
+                {presells.length > 4 && (
+                  <div className="mt-3 flex items-center justify-between gap-3 text-[11px] text-slate-400">
+                    <span>Mostrando 4 de {presells.length} projetos</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllPresells(true)}
+                      className="text-violet-400 hover:text-violet-300 font-bold"
+                    >
+                      Ver todas
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -1635,6 +1831,135 @@ export default function App() {
                     onChange={(e) => setFontSizeSubtitulo(parseInt(e.target.value))}
                     className="w-full h-1 bg-slate-850 rounded-lg appearance-none cursor-pointer accent-violet-500"
                   />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <div className="flex justify-between items-center">
+                <h3 className="text-[10px] font-black text-violet-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Layout className="w-3.5 h-3.5 text-violet-400" />
+                  Header, Footer e Alinhamento
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-slate-400 font-bold">Header ativo:</span>
+                  <button
+                    type="button"
+                    onClick={() => setHeaderEnabled(!headerEnabled)}
+                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${headerEnabled ? 'bg-violet-600' : 'bg-slate-800'}`}
+                  >
+                    <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${headerEnabled ? 'translate-x-5' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-850 space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Nome do site / Marca no Header</label>
+                  <input
+                    type="text"
+                    value={headerBrand}
+                    onChange={(e) => setHeaderBrand(e.target.value)}
+                    placeholder="Ex: FastPresell"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Itens do menu (separados por vírgula)</label>
+                  <textarea
+                    rows={2}
+                    value={headerMenuRaw}
+                    onChange={(e) => setHeaderMenuRaw(e.target.value)}
+                    placeholder="Sobre, Oferta, Contato"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-3 py-2 text-xs text-slate-200 outline-none resize-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Cor do Header</label>
+                    <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-2">
+                      <input type="color" value={headerBgColor} onChange={(e) => setHeaderBgColor(e.target.value)} className="w-8 h-8 rounded-lg border-none p-0" />
+                      <input type="text" value={headerBgColor} onChange={(e) => setHeaderBgColor(e.target.value)} className="w-full bg-transparent text-[10px] font-mono outline-none text-slate-200" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Cor do texto do Header</label>
+                    <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-2">
+                      <input type="color" value={headerTextColor} onChange={(e) => setHeaderTextColor(e.target.value)} className="w-8 h-8 rounded-lg border-none p-0" />
+                      <input type="text" value={headerTextColor} onChange={(e) => setHeaderTextColor(e.target.value)} className="w-full bg-transparent text-[10px] font-mono outline-none text-slate-200" />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setContentAlignment('left')}
+                    className={`text-[10px] font-bold px-3 py-2 rounded-2xl border ${contentAlignment === 'left' ? 'bg-violet-600 text-white border-violet-500' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850'}`}
+                  >
+                    <AlignLeft className="w-3.5 h-3.5 inline-block mr-1" /> Esquerda
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setContentAlignment('center')}
+                    className={`text-[10px] font-bold px-3 py-2 rounded-2xl border ${contentAlignment === 'center' ? 'bg-violet-600 text-white border-violet-500' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850'}`}
+                  >
+                    <AlignCenter className="w-3.5 h-3.5 inline-block mr-1" /> Centro
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setContentAlignment('right')}
+                    className={`text-[10px] font-bold px-3 py-2 rounded-2xl border ${contentAlignment === 'right' ? 'bg-violet-600 text-white border-violet-500' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850'}`}
+                  >
+                    <AlignRight className="w-3.5 h-3.5 inline-block mr-1" /> Direita
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4 bg-slate-950 p-4 rounded-2xl border border-slate-850">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-violet-400">Footer customizável</p>
+                    <p className="text-[10px] text-slate-500">Texto e posição removendo a linha de privacidade/termos.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFooterEnabled(!footerEnabled)}
+                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${footerEnabled ? 'bg-violet-600' : 'bg-slate-800'}`}
+                  >
+                    <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${footerEnabled ? 'translate-x-5' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Texto do Footer</label>
+                  <textarea
+                    rows={2}
+                    value={footerText}
+                    onChange={(e) => setFooterText(e.target.value)}
+                    placeholder="Escreva aqui o texto do rodapé..."
+                    className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-3 py-2 text-xs text-slate-200 outline-none resize-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Cor de fundo do Footer</label>
+                    <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-2">
+                      <input type="color" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} className="w-8 h-8 rounded-lg border-none p-0" />
+                      <input type="text" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} className="w-full bg-transparent text-[10px] font-mono outline-none text-slate-200" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Cor do texto do Footer</label>
+                    <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-2">
+                      <input type="color" value={footerTextColor} onChange={(e) => setFooterTextColor(e.target.value)} className="w-8 h-8 rounded-lg border-none p-0" />
+                      <input type="text" value={footerTextColor} onChange={(e) => setFooterTextColor(e.target.value)} className="w-full bg-transparent text-[10px] font-mono outline-none text-slate-200" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 uppercase tracking-wider">
+                  <span>Posição do footer:</span>
+                  <button type="button" onClick={() => setFooterPosition('left')} className={`px-2 py-1 rounded-xl ${footerPosition === 'left' ? 'bg-violet-600 text-white' : 'bg-slate-900 text-slate-300'}`}>Esquerda</button>
+                  <button type="button" onClick={() => setFooterPosition('center')} className={`px-2 py-1 rounded-xl ${footerPosition === 'center' ? 'bg-violet-600 text-white' : 'bg-slate-900 text-slate-300'}`}>Centro</button>
+                  <button type="button" onClick={() => setFooterPosition('right')} className={`px-2 py-1 rounded-xl ${footerPosition === 'right' ? 'bg-violet-600 text-white' : 'bg-slate-900 text-slate-300'}`}>Direita</button>
                 </div>
               </div>
             </div>
@@ -2164,12 +2489,13 @@ export default function App() {
                 <div className={`text-slate-100 flex flex-col justify-between h-full ${
                   previewDevice === 'mobile' ? 'pt-8' : ''
                 }`} style={{ color: textColor }}>
+                  {renderPreviewHeader()}
                   
                   {/* Aviso de Urgência (Fixo/Topo) */}
                   {avisoPosition === 'sticky' && renderAvisoPreview()}
 
                   {/* Miolo do Card */}
-                  <div className="flex-1 flex flex-col items-center justify-center p-5 md:p-8 max-w-lg mx-auto w-full">
+                  <div className={`flex-1 flex flex-col ${contentAlignment === 'left' ? 'items-start' : contentAlignment === 'right' ? 'items-end' : 'items-center'} justify-center p-5 md:p-8 max-w-lg mx-auto w-full`}>
                     
                     {/* Aviso Posicionado Internamente no Card */}
                     {avisoPosition === 'top-card' && (
@@ -2186,7 +2512,7 @@ export default function App() {
 
                     {/* Headline */}
                     <h1 
-                      className="font-black text-center leading-snug tracking-tight mb-3"
+                      className={`font-black leading-snug tracking-tight mb-3 ${contentAlignment === 'left' ? 'text-left' : contentAlignment === 'right' ? 'text-right' : 'text-center'}`}
                       style={{ 
                         fontSize: `${fontSizeTitulo}px`,
                         color: textColor === '#ffffff' ? '#ffffff' : '#0f172a'
@@ -2200,7 +2526,7 @@ export default function App() {
                     {/* Descrição em Markdown Convertido */}
                     {subtitulo && (
                       <p 
-                        className="text-center opacity-90 leading-relaxed mb-5"
+                        className={`opacity-90 leading-relaxed mb-5 ${contentAlignment === 'left' ? 'text-left' : contentAlignment === 'right' ? 'text-right' : 'text-center'}`}
                         style={{ fontSize: `${fontSizeSubtitulo}px` }}
                         dangerouslySetInnerHTML={{ __html: parseMarkdown(subtitulo) }}
                       />
@@ -2231,12 +2557,12 @@ export default function App() {
                     )}
 
                     {/* Botão de Chamada para Ação (CTA) com Teste Funcional */}
-                    <div className="w-full">
+                    <div className={`w-full flex ${contentAlignment === 'left' ? 'justify-start' : contentAlignment === 'right' ? 'justify-end' : 'justify-center'}`}>
                       <a 
                         href={ctaLink || '#'} 
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="next-preview-pulse block w-full text-center text-white py-3.5 px-5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all transform active:scale-95 shadow-lg relative group/btn"
+                        className="next-preview-pulse block w-full max-w-[340px] text-center text-white py-3.5 px-5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all transform active:scale-95 shadow-lg relative group/btn"
                         style={{ 
                           backgroundColor: ctaColor || '#22c55e',
                           borderRadius: `${Math.max(4, borderRadius - 4)}px`,
@@ -2249,11 +2575,6 @@ export default function App() {
                           <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover/btn:opacity-100 transition-opacity" />
                         </span>
                       </a>
-
-                      <p className="text-[9px] text-center text-slate-500 mt-2.5 font-mono flex items-center justify-center gap-1">
-                        <MousePointerClick className="w-3 h-3 text-violet-400" />
-                        <span>Este botão funciona! Abre seu link em nova aba.</span>
-                      </p>
                     </div>
 
                     {/* Renderizador de FAQ no Live Preview */}
@@ -2276,19 +2597,14 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Termos Fictícios */}
-                    <div className="flex justify-center gap-3 text-[9px] text-slate-600 mt-6">
-                      <span className="hover:underline cursor-pointer">Privacidade</span>
-                      <span>•</span>
-                      <span className="hover:underline cursor-pointer">Termos</span>
-                    </div>
-
                   </div>
 
                   {/* Rodapé institucional */}
-                  <div className="border-t border-slate-900/60 py-3 text-center text-[9px] text-slate-600 bg-slate-950/50">
-                    <p>&copy; {new Date().getFullYear()} • Direitos Reservados</p>
-                  </div>
+                  {footerEnabled && (
+                    <div className="border-t border-slate-900/60 py-3 text-[9px] bg-slate-950/50" style={{ backgroundColor: footerBgColor, color: footerTextColor, textAlign: footerPosition }}>
+                      <p>{footerText || `© ${new Date().getFullYear()} • Direitos Reservados`}</p>
+                    </div>
+                  )}
 
                 </div>
 
@@ -2602,12 +2918,27 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL VER TODAS AS PRESSELLS */}
+      {showAllPresells && (
+        <AllPresellsModal
+          presells={presells}
+          activeId={activeId}
+          loadPresell={(item) => {
+            loadPresell(item);
+            setShowAllPresells(false);
+          }}
+          handleDuplicatePresell={handleDuplicatePresell}
+          setShowAllPresells={setShowAllPresells}
+          isDraft={(item) => isDraftCard(item)}
+        />
+      )}
+
       {/* MODAL DE EXPORTAÇÃO */}
       {exportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-4 mb-4">
-              <div>
+              <div className="flex-1 min-w-0">
                 <span className="bg-violet-500/10 text-violet-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-violet-500/20 uppercase tracking-wider">
                   EXPORTAR PROJETO
                 </span>
@@ -2615,6 +2946,7 @@ export default function App() {
                   <Code className="w-6 h-6 text-violet-500" />
                   Escolha como quer exportar
                 </h2>
+                <p className="text-xs text-slate-400 mt-1">Defina o nome do arquivo HTML antes de baixar para não depender apenas do título da presell.</p>
               </div>
               <button
                 onClick={() => setExportModalOpen(false)}
@@ -2624,29 +2956,58 @@ export default function App() {
               </button>
             </div>
 
-            <div className="relative mt-4">
-              <div className="absolute top-3 right-3 z-10 flex gap-2">
-                <button
-                  onClick={handleCopyCode}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold py-2 px-3.5 rounded-lg flex items-center gap-1.5 transition-all border border-slate-700"
-                >
-                  {copiedId === 'code' ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Copiado!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Copiar HTML</span>
-                    </>
-                  )}
-                </button>
+            <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr] items-start">
+              <div>
+                <label className="block text-[11px] text-slate-400 mb-2">Nome do arquivo HTML</label>
+                <input
+                  type="text"
+                  value={exportFileName}
+                  onChange={(e) => setExportFileName(e.target.value)}
+                  placeholder="meu-presell"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-3.5 py-3 text-sm text-slate-100 outline-none focus:border-violet-500"
+                />
+                <p className="text-[10px] text-slate-500 mt-2">O nome será usado no arquivo baixado. Ex: <span className="text-slate-300">meu-presell.html</span></p>
+                <div className="relative mt-4">
+                  <div className="absolute top-3 right-3 z-10 flex gap-2">
+                    <button
+                      onClick={handleCopyCode}
+                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold py-2 px-3.5 rounded-lg flex items-center gap-1.5 transition-all border border-slate-700"
+                    >
+                      {copiedId === 'code' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-emerald-400">Copiado!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copiar HTML</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <pre className="bg-slate-950 border border-slate-800 rounded-xl p-4 pt-12 overflow-x-auto text-xs text-slate-300 font-mono max-h-[220px] scrollbar-thin scrollbar-thumb-slate-800">
+                    <code>{generatedExportHTML}</code>
+                  </pre>
+                </div>
               </div>
 
-              <pre className="bg-slate-950 border border-slate-800 rounded-xl p-4 pt-12 overflow-x-auto text-xs text-slate-300 font-mono max-h-[220px] scrollbar-thin scrollbar-thumb-slate-800">
-                <code>{generateHTML()}</code>
-              </pre>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div>
+                    <p className="text-[11px] text-slate-400">Visualização do HTML exportado</p>
+                    <p className="text-[10px] text-slate-500">O iframe mostra o mesmo código que será baixado.</p>
+                  </div>
+                </div>
+                <div className="border border-slate-800 rounded-3xl overflow-hidden bg-slate-950">
+                  <iframe
+                    title="Preview do HTML exportado"
+                    srcDoc={generatedExportHTML}
+                    sandbox="allow-same-origin allow-scripts"
+                    className="w-full h-[360px] bg-white"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-4 mt-4 flex gap-3 items-start">
@@ -2700,7 +3061,18 @@ export default function App() {
                     imageAlign,
                     imagePosition,
                     imageFit,
-                    imageFullBleed
+                    imageFullBleed,
+                    headerEnabled,
+                    headerBrand,
+                    headerMenuRaw,
+                    headerBgColor,
+                    headerTextColor,
+                    contentAlignment,
+                    footerEnabled,
+                    footerText,
+                    footerBgColor,
+                    footerTextColor,
+                    footerPosition
                   };
                   const element = document.createElement("a");
                   const file = new Blob([JSON.stringify(dataToBackup, null, 2)], {type: 'application/json'});
@@ -2727,9 +3099,10 @@ export default function App() {
                 <button
                   onClick={() => {
                     const element = document.createElement("a");
-                    const file = new Blob([generateHTML()], {type: 'text/html'});
+                    const file = new Blob([generatedExportHTML], {type: 'text/html'});
+                    const targetName = exportFileName.trim() || (titulo ? titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 20) : 'presell');
                     element.href = URL.createObjectURL(file);
-                    element.download = `${titulo ? titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 20) : 'presell'}.html`;
+                    element.download = `${targetName}.html`;
                     document.body.appendChild(element);
                     element.click();
                     document.body.removeChild(element);
