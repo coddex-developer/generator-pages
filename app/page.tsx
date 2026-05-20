@@ -902,7 +902,6 @@ export default function App() {
             <details class="group bg-slate-950/50 border border-slate-850 p-3 rounded-lg transition-all">
               <summary class="flex items-center justify-between cursor-pointer focus:outline-none text-[11px] font-extrabold text-white">
                 <span>${escapeHtml(item.question)}</span>
-                <span>▼</span>
               </summary>
               <p class="text-[10px] text-slate-300 mt-2 leading-relaxed border-t border-slate-800/40 pt-2 whitespace-pre-wrap">
                 ${escapeHtml(item.answer).replace(/\n/g, '<br />')}
@@ -981,7 +980,7 @@ export default function App() {
   ${headerHtml}
   ${avisoPosition === 'sticky' ? renderAvisoHTML() : ''}
   <main class="grow flex flex-col items-center justify-center">
-    <div class="w-full p-6 md:p-8 overflow-hidden" style="border-radius: ${borderRadius}px; color: ${textColor};">
+    <div class="w-full lg:max-w-3xl p-6 md:p-8 overflow-hidden" style="border-radius: ${borderRadius}px; color: ${textColor};">
       ${avisoPosition === 'top-card' ? `<div class="mb-5">${renderAvisoHTML()}</div>` : ''}
       ${renderBadgeHTML()}
       ${imagePosition === 'top' ? cardImageHtml : ''}
