@@ -1268,15 +1268,15 @@ export default function App() {
               <Flame className="w-5.5 h-5.5 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <span className="font-extrabold text-white tracking-tight text-base">RapidPresell v4.0</span>
-                <span className="bg-violet-500/10 text-violet-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-violet-500/20">Hyper Design</span>
+                <span className="bg-violet-500/10 text-violet-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-violet-500/20">Coodex Developer</span>
               </div>
               <p className="text-[11px] text-slate-400 hidden sm:block">Foco de Escassez, Design de Timer Elevado & Customização de Componentes</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setImportModalOpen(true)}
               className="bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 border border-slate-700/80"
