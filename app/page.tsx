@@ -2936,7 +2936,7 @@ export default function App() {
       {/* MODAL DE EXPORTAÇÃO */}
       {exportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full lg:max-w-6xl p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="flex-1 min-w-0">
                 <span className="bg-violet-500/10 text-violet-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-violet-500/20 uppercase tracking-wider">
@@ -2986,13 +2986,13 @@ export default function App() {
                       )}
                     </button>
                   </div>
-                  <pre className="bg-slate-950 border border-slate-800 rounded-xl p-4 pt-12 overflow-x-auto text-xs text-slate-300 font-mono max-h-[220px] scrollbar-thin scrollbar-thumb-slate-800">
+                  <pre className="bg-slate-950 border border-slate-800 rounded-xl p-4 pt-12 overflow-x-auto text-xs text-slate-300 font-mono w-full max-w-[300px] lg:max-w-2xl mx-auto max-h-[220px] lg:max-h-[290px] scrollbar-thin scrollbar-thumb-slate-800">
                     <code>{generatedExportHTML}</code>
                   </pre>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 hidden lg:block">
                 <div className="flex items-center justify-between gap-3 mb-2">
                   <div>
                     <p className="text-[11px] text-slate-400">Visualização do HTML exportado</p>
