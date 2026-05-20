@@ -1008,12 +1008,11 @@ export default function App() {
         </div>
       ` : ''}
       <div class="w-full flex ${contentJustifyClass} mb-6">
-        <a href="${safeCtaLink}" target="_blank" rel="noopener noreferrer" class="pulse-btn block max-w-full text-center text-white py-3.5 px-5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all transform active:scale-95 shadow-lg" style="background-color: ${ctaColor}; border-radius: ${Math.max(4, borderRadius - 4)}px; box-shadow: 0 4px 14px 0 ${ctaColor}35; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+        <a href="${safeCtaLink}" target="_blank" rel="noopener noreferrer" class="pulse-btn block max-w-full min-w-75 lg:min-w-120 text-center text-white py-3.5 px-5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all transform active:scale-95 shadow-lg" style="background-color: ${ctaColor}; border-radius: ${Math.max(4, borderRadius - 4)}px; box-shadow: 0 4px 14px 0 ${ctaColor}35; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
           ${safeCtaText}
         </a>
       </div>
       ${faqHtml}
-      
     </div>
     ${footerHtml}
   </main>
