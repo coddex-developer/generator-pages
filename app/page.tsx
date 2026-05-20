@@ -996,12 +996,12 @@ export default function App() {
           <div class="flex justify-center gap-3 items-center">
             <div class="flex flex-col">
               <span id="t-min" class="text-2xl font-black">00</span>
-              <span class="text-[9px] opacity-40 uppercase font-bold">Minutos</span>
+              <span class="text-[9px] opacity-40 uppercase font-bold">Minutes</span>
             </div>
             <span class="text-xl font-bold opacity-40">:</span>
             <div class="flex flex-col">
               <span id="t-sec" class="text-2xl font-black">00</span>
-              <span class="text-[9px] opacity-40 uppercase font-bold">Segundos</span>
+              <span class="text-[9px] opacity-40 uppercase font-bold">Seconds</span>
             </div>
           </div>
         </div>
@@ -2545,12 +2545,12 @@ export default function App() {
                         <div className="flex justify-center gap-3 items-center">
                           <div className="flex flex-col">
                             <span className="text-2xl font-black">{formatTime.min}</span>
-                            <span className="text-[9px] opacity-40 uppercase font-bold">Minutos</span>
+                            <span className="text-[9px] opacity-40 uppercase font-bold">Minutes</span>
                           </div>
                           <span className="text-xl font-bold opacity-40">:</span>
                           <div className="flex flex-col">
                             <span className="text-2xl font-black">{formatTime.sec}</span>
-                            <span className="text-[9px] opacity-40 uppercase font-bold">Segundos</span>
+                            <span className="text-[9px] opacity-40 uppercase font-bold">Seconds</span>
                           </div>
                         </div>
                       </div>
