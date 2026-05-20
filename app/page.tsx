@@ -878,7 +878,7 @@ export default function App() {
       if (!avisoEnabled || !avisoTopo) return '';
       const layoutClass = avisoWidth === 'full' ? 'w-full' : 'mx-4 mt-2 rounded-xl';
       const pulseClass = avisoPulse ? 'animate-pulse' : '';
-      return `<div class="text-center text-[10px] md:text-xs font-bold py-1.5 px-3 shadow-md tracking-wide z-10 ${pulseClass} ${layoutClass}" style="background-color: ${avisoBgColor}; color: ${avisoTextColor};">
+      return `<div class="text-center text-sm md:text-xs lg:text:md  font-bold py-1.5 lg:py-2 px-3 shadow-md tracking-wide z-10 ${pulseClass} ${layoutClass}" style="background-color: ${avisoBgColor}; color: ${avisoTextColor};">
         ${escapeHtml(avisoTopo)}
       </div>`;
     };
@@ -934,7 +934,7 @@ export default function App() {
 
     const footerHtml = footerEnabled ? `
       <footer class="w-full mt-6 border-t border-slate-800/80">
-        <div class="py-4 text-sm" style="background-color: ${footerBgColor}; color: ${footerTextColor}; text-align: ${footerPosition};">
+        <div class="w-full py-4 text-sm" style="background-color: ${footerBgColor}; color: ${footerTextColor}; text-align: ${footerPosition};">
           ${safeFooterText}
         </div>
       </footer>
@@ -979,8 +979,8 @@ export default function App() {
 <body class="min-h-screen flex flex-col justify-between selection:bg-violet-600 selection:text-white">
   ${headerHtml}
   ${avisoPosition === 'sticky' ? renderAvisoHTML() : ''}
-  <main class="flex-grow flex items-center justify-center px-4 py-8 md:py-16">
-    <div class="max-w-xl w-full bg-slate-900/40 border border-slate-800/80 p-6 md:p-8 shadow-2xl backdrop-blur-md overflow-hidden" style="border-radius: ${borderRadius}px; color: ${textColor};">
+  <main class="grow flex flex-col items-center justify-center">
+    <div class="w-full p-6 md:p-8 overflow-hidden" style="border-radius: ${borderRadius}px; color: ${textColor};">
       ${avisoPosition === 'top-card' ? `<div class="mb-5">${renderAvisoHTML()}</div>` : ''}
       ${renderBadgeHTML()}
       ${imagePosition === 'top' ? cardImageHtml : ''}
@@ -1012,8 +1012,9 @@ export default function App() {
         </a>
       </div>
       ${faqHtml}
-      ${footerHtml}
+      
     </div>
+    ${footerHtml}
   </main>
   ${timerEnabled ? `
     <script>
