@@ -1,10 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Presell, FAQItem } from '../types/presell';
+import { Presell, FAQItem, Language } from '../types/presell';
+import { translations } from './i18n';
 
 export const defaultTemplate: Presell = {
-  id: 'demo-default',
+  id: Math.floor(Math.random() * 10000),
   titulo: 'Como faturar até **[R$ 10.000]{#22c55e}** no mercado digital sem aparecer',
   subtitulo: 'Aprenda os **três passos práticos** que os maiores afiliados ocultos usam para vender todos os dias sem investir fortunas em tráfego.',
   imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop',
@@ -152,7 +153,7 @@ interface PresellContextData {
 
   // Language & i18n
   lang: Language; setLang: (v: Language) => void;
-  t: (key: keyof typeof translations['pt']) => string;
+  t: (key: keyof typeof translations['en']) => string;
 
   // App UI State
   toastMessage: string | null;

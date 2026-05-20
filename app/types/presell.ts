@@ -1,12 +1,14 @@
 'use client';
 
+export type Language = 'pt' | 'en' | 'es';
+
 export interface FAQItem {
   question: string;
   answer: string;
 }
 
 export interface Presell {
-  id: string;
+  id: string | number;
   titulo: string;
   subtitulo: string;
   imageUrl: string;

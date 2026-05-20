@@ -17,8 +17,8 @@ export function TopBar({ setImportModalOpen, setExportModalOpen }: { setImportMo
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="font-extrabold text-white tracking-tight text-base">RapidPresell v4.0</span>
-              <span className="bg-violet-500/10 text-violet-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-violet-500/20">Coodex Developer</span>
+              <span className="font-extrabold text-white tracking-tight text-base">RapidPresell</span>
+              <span className="bg-violet-500/10 text-violet-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-violet-500/20">v4.3.2</span>
             </div>
             <p className="text-[11px] text-slate-400 hidden sm:block">Foco de Escassez, Design de Timer Elevado & Customização de Componentes</p>
           </div>
