@@ -55,4 +55,11 @@ export interface Presell {
   footerBgColor: string;
   footerTextColor: string;
   footerPosition: 'left' | 'center' | 'right';
+  ctaSize?: 'small' | 'medium' | 'large';
+  ctaWidth?: number;
+  faqFontSize?: number;
+  faqAnswerFontSize?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 }
