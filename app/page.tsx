@@ -44,6 +44,7 @@ import {
 import { Presell, FAQItem } from './types/presell';
 import { PresellCard } from './components/PresellCard';
 import { AllPresellsModal } from './components/AllPresellsModal';
+import Image from 'next/image';
 
 interface ColorPreset {
   name: string;
@@ -1156,7 +1157,7 @@ export default function App() {
             boxShadow: hasImageBorder && !imageFullBleed ? `0 10px 20px rgba(0,0,0,0.5), 0 0 15px ${ctaColor}15` : 'none'
           }}
         >
-          <img 
+          <img
             src={imageUrl} 
             alt="Pré-visualização" 
             className="w-full h-full"
