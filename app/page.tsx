@@ -941,7 +941,7 @@ export default function App() {
     ` : '';
 
     return `<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
