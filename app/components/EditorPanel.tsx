@@ -1,14 +1,61 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { Settings, SlidersHorizontal, Layout, Sparkles, FileText, HelpCircle, ImageIcon, Timer, Palette, Plus, Trash2, RotateCcw, SaveIcon, LinkIcon } from 'lucide-react';
+import { Bold, Home, Italic, Mail, Paintbrush, Phone, Settings, ShieldCheck, ShoppingCart, SlidersHorizontal, Layout, Sparkles, FileText, HelpCircle, ImageIcon, Timer, Palette, Plus, Trash2, RotateCcw, SaveIcon, LinkIcon, Star, Strikethrough } from 'lucide-react';
 import { usePresell } from '../context/PresellContext';
+import type { HeaderMenuItem, Presell, TimerStyle } from '../types/presell';
 
-export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: boolean) => void }) {
+type Alignment = Presell['contentAlignment'];
+type ImageFit = Presell['imageFit'];
+type ImagePosition = Presell['imagePosition'];
+type ImageAlign = Presell['imageAlign'];
+type NoticeWidth = Presell['avisoWidth'];
+type NoticePosition = Presell['avisoPosition'];
+
+const menuIconOptions: Array<{ value: HeaderMenuItem['icon']; label: string; Icon: React.ComponentType<{ className?: string }> }> = [
+  { value: 'home', label: 'Casa', Icon: Home },
+  { value: 'star', label: 'Destaque', Icon: Star },
+  { value: 'shield', label: 'Garantia', Icon: ShieldCheck },
+  { value: 'cart', label: 'Compra', Icon: ShoppingCart },
+  { value: 'phone', label: 'Telefone', Icon: Phone },
+  { value: 'mail', label: 'Email', Icon: Mail }
+];
+
+const timerStyles: Array<{ value: TimerStyle; label: string }> = [
+  { value: 'classic', label: 'Clássico' },
+  { value: 'cards', label: 'Cards premium' },
+  { value: 'glass', label: 'Glass' },
+  { value: 'urgency', label: 'Urgência' }
+];
+
+function MarkdownButtons({ onInsert }: { onInsert: (tag: string) => void }) {
+  return (
+    <div className="flex gap-1.5">
+      <button type="button" onClick={() => onInsert('bold')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 p-1.5 rounded border border-slate-800" title="Negrito"><Bold className="w-3 h-3" /></button>
+      <button type="button" onClick={() => onInsert('italic')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 p-1.5 rounded border border-slate-800" title="Itálico"><Italic className="w-3 h-3" /></button>
+      <button type="button" onClick={() => onInsert('strike')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 p-1.5 rounded border border-slate-800" title="Taxado"><Strikethrough className="w-3 h-3" /></button>
+      <button type="button" onClick={() => onInsert('link')} className="bg-slate-950 hover:bg-slate-850 text-blue-400 p-1.5 rounded border border-slate-800" title="Link"><LinkIcon className="w-3 h-3" /></button>
+      <button type="button" onClick={() => onInsert('color')} className="bg-slate-950 hover:bg-slate-850 text-violet-400 p-1.5 rounded border border-slate-800" title="Cor"><Paintbrush className="w-3 h-3" /></button>
+    </div>
+  );
+}
+
+export function EditorPanel({
+  setMarkdownHelpOpen,
+  onRequestSave,
+  onRequestReset
+}: {
+  setMarkdownHelpOpen: (v: boolean) => void;
+  onRequestSave: () => void;
+  onRequestReset: () => void;
+}) {
   const ctx = usePresell();
   
   const tituloRef = useRef<HTMLTextAreaElement>(null);
   const subtituloRef = useRef<HTMLTextAreaElement>(null);
+  const footerRef = useRef<HTMLTextAreaElement>(null);
+  const seoDescRef = useRef<HTMLTextAreaElement>(null);
+  const faqAnswerRef = useRef<HTMLTextAreaElement>(null);
 
   const [newQuestion, setNewQuestion] = React.useState('');
   const [newAnswer, setNewAnswer] = React.useState('');
@@ -22,6 +69,10 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
     { name: 'Minimalista Claro', value: '#f8fafc', isLight: true },
     { name: 'Gelo Sofisticado', value: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)', isLight: true },
     { name: 'Champanhe Premium', value: 'linear-gradient(135deg, #fafaf9 0%, #f5f5f4 100%)', isLight: true },
+    { name: 'Google Clean', value: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 55%, #dbeafe 100%)', isLight: true },
+    { name: 'Ads Blue', value: 'linear-gradient(135deg, #07111f 0%, #0f3b68 100%)' },
+    { name: 'Carbon Gold', value: 'linear-gradient(135deg, #0f0f0f 0%, #2a2113 100%)' },
+    { name: 'Neon Mint', value: 'linear-gradient(135deg, #021b1a 0%, #063b33 100%)' },
   ];
 
   const ctaColorPresets = [
@@ -59,9 +110,9 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
     const end = textarea.selectionEnd;
     const value = textarea.value;
 
-    let before = value.substring(0, start);
-    let after = value.substring(end, value.length);
-    let selected = value.substring(start, end);
+    const before = value.substring(0, start);
+    const after = value.substring(end, value.length);
+    const selected = value.substring(start, end);
 
     let inserted = '';
     if (tag === 'bold') inserted = `**${selected || 'texto'}**`;
@@ -81,21 +132,58 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
     }, 50);
   };
 
+  const insertMarkdownFor = (
+    tag: string,
+    textarea: HTMLTextAreaElement | null,
+    value: string,
+    setter: (nextValue: string) => void
+  ) => {
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = value.substring(0, start);
+    const after = value.substring(end);
+    const selected = value.substring(start, end);
+    const inserted =
+      tag === 'bold' ? `**${selected || 'texto'}**` :
+      tag === 'italic' ? `*${selected || 'texto'}*` :
+      tag === 'strike' ? `~~${selected || 'texto'}~~` :
+      tag === 'link' ? `[${selected || 'texto do link'}](https://)` :
+      `[${selected || 'texto'}]{#22c55e}`;
+    setter(before + inserted + after);
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + inserted.length, start + inserted.length);
+    }, 50);
+  };
+
   const handleAddFaqItem = () => {
     if (!newQuestion.trim() || !newAnswer.trim()) {
-      ctx.showToast('⚠️ Preencha a pergunta e resposta para adicionar!');
+      ctx.showToast('Preencha a pergunta e resposta para adicionar.');
       return;
     }
     const updatedFaq = [...ctx.faqList, { question: newQuestion.trim(), answer: newAnswer.trim() }];
     ctx.setFaqList(updatedFaq);
     setNewQuestion('');
     setNewAnswer('');
-    ctx.showToast('❓ FAQ adicionado!');
+    ctx.showToast('FAQ adicionado.');
   };
 
   const handleRemoveFaqItem = (index: number) => {
     const updatedFaq = ctx.faqList.filter((_, i) => i !== index);
     ctx.setFaqList(updatedFaq);
+  };
+
+  const updateHeaderMenuItem = (id: string, patch: Partial<HeaderMenuItem>) => {
+    ctx.setHeaderMenuItems(ctx.headerMenuItems.map((item) => item.id === id ? { ...item, ...patch } : item));
+  };
+
+  const addHeaderMenuItem = () => {
+    if (ctx.headerMenuItems.length >= 4) return;
+    ctx.setHeaderMenuItems([
+      ...ctx.headerMenuItems,
+      { id: `menu_${Date.now()}`, label: '', url: '#offer', icon: 'star' }
+    ]);
   };
 
   return (
@@ -150,14 +238,33 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
                   className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Itens do menu (vírgula)</label>
-                <textarea
-                  rows={2}
-                  value={ctx.headerMenuRaw}
-                  onChange={(e) => ctx.setHeaderMenuRaw(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-3 py-2 text-xs text-slate-200 outline-none resize-none"
-                />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <label className="block text-xs font-bold text-slate-300">Itens do menu</label>
+                  <button type="button" onClick={addHeaderMenuItem} disabled={ctx.headerMenuItems.length >= 4} className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-violet-500/30 bg-violet-600/15 px-2 py-1 text-[10px] font-black text-violet-300 disabled:cursor-not-allowed disabled:opacity-40">
+                    <Plus className="w-3 h-3" /> Adicionar
+                  </button>
+                </div>
+                <div className="grid gap-2">
+                  {ctx.headerMenuItems.slice(0, 4).map((item, index) => (
+                    <div key={item.id} className="rounded-2xl border border-slate-800 bg-slate-900 p-2.5 space-y-2">
+                      <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                        <input type="text" value={item.label} onChange={(e) => updateHeaderMenuItem(item.id, { label: e.target.value })} placeholder={`Menu ${index + 1}`} className="min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none" />
+                        <input type="text" value={item.url} onChange={(e) => updateHeaderMenuItem(item.id, { url: e.target.value })} placeholder="https:// ou #secao" className="min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none" />
+                        <button type="button" onClick={() => ctx.setHeaderMenuItems(ctx.headerMenuItems.filter((entry) => entry.id !== item.id))} className="cursor-pointer rounded-xl bg-slate-950 p-2 text-slate-500 hover:text-red-400">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {menuIconOptions.map(({ value, label, Icon }) => (
+                          <button key={value} type="button" title={label} onClick={() => updateHeaderMenuItem(item.id, { icon: value })} className={`cursor-pointer rounded-lg border p-1.5 ${item.icon === value ? 'border-violet-500 bg-violet-600 text-white' : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-white'}`}>
+                            <Icon className="w-3.5 h-3.5" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -194,7 +301,11 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
               <>
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1">Texto do Footer</label>
+                  <div className="mb-1">
+                    <MarkdownButtons onInsert={(tag) => insertMarkdownFor(tag, footerRef.current, ctx.footerText, ctx.setFooterText)} />
+                  </div>
                   <textarea
+                    ref={footerRef}
                     rows={2}
                     value={ctx.footerText}
                     onChange={(e) => ctx.setFooterText(e.target.value)}
@@ -313,11 +424,11 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
         <div>
           <label className="block text-xs font-bold text-slate-300 mb-1">Alinhamento do Conteúdo</label>
           <div className="grid grid-cols-3 gap-2">
-            {['left', 'center', 'right'].map((align) => (
+            {(['left', 'center', 'right'] as Alignment[]).map((align) => (
               <button
                 key={align}
                 type="button"
-                onClick={() => ctx.setContentAlignment(align as any)}
+                onClick={() => ctx.setContentAlignment(align)}
                 className={`text-[10px] cursor-pointer font-bold px-3 py-2 rounded-2xl border capitalize ${ctx.contentAlignment === align ? 'bg-violet-600 text-white border-violet-500' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850'}`}
               >
                 {align === 'left' ? 'Esquerda' : align === 'right' ? 'Direita' : 'Centro'}
@@ -353,8 +464,8 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
               <button type="button" onClick={() => insertMarkdown('bold', 'titulo')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Negrito">B</button>
               <button type="button" onClick={() => insertMarkdown('italic', 'titulo')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 px-1.5 py-0.5 rounded text-[10px] italic border border-slate-800" title="Itálico">I</button>
               <button type="button" onClick={() => insertMarkdown('strike', 'titulo')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 px-1.5 py-0.5 rounded text-[10px] line-through border border-slate-800" title="Taxado">S</button>
-              <button type="button" onClick={() => insertMarkdown('link', 'titulo')} className="bg-slate-950 hover:bg-slate-850 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Link">🔗</button>
-              <button type="button" onClick={() => insertMarkdown('color', 'titulo')} className="bg-slate-950 hover:bg-slate-850 text-violet-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Colorir com Paleta">🎨</button>
+              <button type="button" onClick={() => insertMarkdown('link', 'titulo')} className="bg-slate-950 hover:bg-slate-850 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Link"><LinkIcon className="w-3 h-3" /></button>
+              <button type="button" onClick={() => insertMarkdown('color', 'titulo')} className="bg-slate-950 hover:bg-slate-850 text-violet-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Colorir com Paleta"><Paintbrush className="w-3 h-3" /></button>
             </div>
           </div>
           <textarea 
@@ -373,8 +484,8 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
               <button type="button" onClick={() => insertMarkdown('bold', 'subtitulo')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Negrito">B</button>
               <button type="button" onClick={() => insertMarkdown('italic', 'subtitulo')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 px-1.5 py-0.5 rounded text-[10px] italic border border-slate-800" title="Itálico">I</button>
               <button type="button" onClick={() => insertMarkdown('strike', 'subtitulo')} className="bg-slate-950 hover:bg-slate-850 text-slate-300 px-1.5 py-0.5 rounded text-[10px] line-through border border-slate-800" title="Taxado">S</button>
-              <button type="button" onClick={() => insertMarkdown('link', 'subtitulo')} className="bg-slate-950 hover:bg-slate-850 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Link">🔗</button>
-              <button type="button" onClick={() => insertMarkdown('color', 'subtitulo')} className="bg-slate-950 hover:bg-slate-850 text-violet-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Colorir Texto">🎨</button>
+              <button type="button" onClick={() => insertMarkdown('link', 'subtitulo')} className="bg-slate-950 hover:bg-slate-850 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Link"><LinkIcon className="w-3 h-3" /></button>
+              <button type="button" onClick={() => insertMarkdown('color', 'subtitulo')} className="bg-slate-950 hover:bg-slate-850 text-violet-400 px-1.5 py-0.5 rounded text-[10px] font-bold border border-slate-800" title="Colorir Texto"><Paintbrush className="w-3 h-3" /></button>
             </div>
           </div>
           <textarea 
@@ -450,7 +561,7 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
             </div>
           </div>
 
-          {!ctx.imageFullBleed && (
+          {(
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label className="text-xs font-bold text-slate-300">Largura Máxima da Imagem</label>
@@ -463,15 +574,16 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">Encaixe Visual</label>
-              <select value={ctx.imageFit} onChange={(e) => ctx.setImageFit(e.target.value as any)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none font-bold">
+              <select value={ctx.imageFit} onChange={(e) => ctx.setImageFit(e.target.value as ImageFit)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none font-bold">
                 <option value="cover">Preencher</option>
                 <option value="contain">Conter tudo</option>
                 <option value="fill">Esticar</option>
+                <option value="scale-down">Reduzir sem cortar</option>
               </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">Posição Vertical</label>
-              <select value={ctx.imagePosition} onChange={(e) => ctx.setImagePosition(e.target.value as any)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none font-bold">
+              <select value={ctx.imagePosition} onChange={(e) => ctx.setImagePosition(e.target.value as ImagePosition)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none font-bold">
                 <option value="top">No Topo</option>
                 <option value="middle">No Meio</option>
                 <option value="bottom">Na Base</option>
@@ -479,15 +591,15 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
             </div>
           </div>
           
-          {!ctx.imageFullBleed && (
+          {(
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">Alinhamento Horizontal da Imagem</label>
               <div className="grid grid-cols-3 gap-2">
-                {['left', 'center', 'right'].map((align) => (
+                {(['left', 'center', 'right'] as ImageAlign[]).map((align) => (
                   <button
                     key={align}
                     type="button"
-                    onClick={() => ctx.setImageAlign(align as any)}
+                    onClick={() => ctx.setImageAlign(align)}
                     className={`text-[10px] font-bold px-3 py-2 rounded-2xl border capitalize ${ctx.imageAlign === align ? 'bg-violet-600 text-white border-violet-500' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850'}`}
                   >
                     {align === 'left' ? 'Esquerda' : align === 'right' ? 'Direita' : 'Centro'}
@@ -602,11 +714,11 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
             <div className="space-y-3">
               <input type="text" value={ctx.avisoTopo} onChange={(e) => ctx.setAvisoTopo(e.target.value)} placeholder="ATENÇÃO: Vagas acabando!" className="w-full bg-slate-950 border border-slate-850 focus:border-violet-500 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none" />
               <div className="grid grid-cols-2 gap-3">
-                <select value={ctx.avisoWidth} onChange={(e) => ctx.setAvisoWidth(e.target.value as any)} className="w-full bg-slate-950 border border-slate-850 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                <select value={ctx.avisoWidth} onChange={(e) => ctx.setAvisoWidth(e.target.value as NoticeWidth)} className="w-full bg-slate-950 border border-slate-850 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none">
                   <option value="full">Largura Total</option>
                   <option value="card">Mesma do Card</option>
                 </select>
-                <select value={ctx.avisoPosition} onChange={(e) => ctx.setAvisoPosition(e.target.value as any)} className="w-full bg-slate-950 border border-slate-850 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                <select value={ctx.avisoPosition} onChange={(e) => ctx.setAvisoPosition(e.target.value as NoticePosition)} className="w-full bg-slate-950 border border-slate-850 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none">
                   <option value="sticky">Fixo no Topo</option>
                   <option value="top-card">Topo do Card</option>
                 </select>
@@ -656,6 +768,21 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
           </div>
           {ctx.timerEnabled && (
             <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-1">Modelo visual do timer</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {timerStyles.map((style) => (
+                    <button
+                      key={style.value}
+                      type="button"
+                      onClick={() => ctx.setTimerStyle(style.value)}
+                      className={`cursor-pointer rounded-xl border px-3 py-2 text-[10px] font-black ${ctx.timerStyle === style.value ? 'border-violet-500 bg-violet-600 text-white' : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-white'}`}
+                    >
+                      {style.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2">
                   <label className="block text-[10px] text-slate-400 mb-1">Texto do Timer</label>
@@ -690,7 +817,10 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
             </div>
             <div>
               <label className="block text-[10px] font-bold text-slate-400 mb-1">Resposta (Aceita Markdown)</label>
-              <textarea rows={6} value={newAnswer} onChange={(e) => setNewAnswer(e.target.value)} className="w-full bg-slate-900 border border-slate-850 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none resize-none leading-relaxed" />
+              <div className="mb-1">
+                <MarkdownButtons onInsert={(tag) => insertMarkdownFor(tag, faqAnswerRef.current, newAnswer, setNewAnswer)} />
+              </div>
+              <textarea ref={faqAnswerRef} rows={6} value={newAnswer} onChange={(e) => setNewAnswer(e.target.value)} className="w-full bg-slate-900 border border-slate-850 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none resize-none leading-relaxed" />
             </div>
             <button type="button" onClick={handleAddFaqItem} className="bg-violet-600/20 cursor-pointer hover:bg-violet-600/40 text-violet-400 border border-violet-500/30 font-bold text-xs py-1.5 px-3 rounded-xl transition-all self-end flex items-center gap-1">
               <Plus className="w-3.5 h-3.5" /> Adicionar FAQ
@@ -734,26 +864,72 @@ export function EditorPanel({ setMarkdownHelpOpen }: { setMarkdownHelpOpen: (v: 
         </div>
       </div>
 
+      <hr className="border-slate-850" />
+
+      <div className="space-y-4">
+        <h3 className="text-[10px] font-black text-violet-400 uppercase tracking-widest flex items-center gap-1.5">
+          <FileText className="w-3.5 h-3.5 text-violet-400" />
+          SEO, idioma e Google Ads
+        </h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1">Idioma global</label>
+            <select
+              value={ctx.lang}
+              onChange={(e) => ctx.setLang(e.target.value as 'pt' | 'en')}
+              className="w-full bg-slate-950 border border-slate-850 focus:border-violet-500 rounded-xl px-3 py-2.5 text-xs text-slate-200 outline-none"
+            >
+              <option value="pt">Português</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1">Titulo do HTML</label>
+            <input
+              type="text"
+              value={ctx.seoTitle}
+              onChange={(e) => ctx.setSeoTitle(e.target.value)}
+              placeholder="Titulo que aparece na aba e no Google"
+              className="w-full bg-slate-950 border border-slate-850 focus:border-violet-500 rounded-xl px-3 py-2.5 text-xs text-slate-200 outline-none"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-300 mb-1">Meta description</label>
+          <div className="mb-1">
+            <MarkdownButtons onInsert={(tag) => insertMarkdownFor(tag, seoDescRef.current, ctx.seoDescription, ctx.setSeoDescription)} />
+          </div>
+          <textarea
+            ref={seoDescRef}
+            rows={3}
+            value={ctx.seoDescription}
+            onChange={(e) => ctx.setSeoDescription(e.target.value)}
+            placeholder="Pode ser a mesma descricao da presell."
+            className="w-full bg-slate-950 border border-slate-850 focus:border-violet-500 rounded-xl px-3 py-2.5 text-xs text-slate-200 outline-none resize-none leading-relaxed"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-300 mb-1">Palavras-chave</label>
+          <input
+            type="text"
+            value={ctx.seoKeywords}
+            onChange={(e) => ctx.setSeoKeywords(e.target.value)}
+            placeholder="afiliados, produto digital, oferta"
+            className="w-full bg-slate-950 border border-slate-850 focus:border-violet-500 rounded-xl px-3 py-2.5 text-xs text-slate-200 outline-none"
+          />
+        </div>
+      </div>
+
       <div className="mt-2 pt-4 border-t border-slate-850 flex gap-2">
-        <button type="button" onClick={ctx.handleSavePresell} className="flex cursor-pointer justify-center items-center gap-4 grow bg-violet-600 hover:bg-violet-500 text-white font-black text-xs md:text-sm py-3 px-4 rounded-xl transition-all shadow-lg shadow-violet-600/20 active:scale-[0.98]">
+        <button type="button" onClick={onRequestSave} className="flex cursor-pointer justify-center items-center gap-4 grow bg-violet-600 hover:bg-violet-500 text-white font-black text-xs md:text-sm py-3 px-4 rounded-xl transition-all shadow-lg shadow-violet-600/20 active:scale-[0.98]">
           <SaveIcon/> SALVAR PROJETO
         </button>
         <button
           type="button"
-          onClick={() => {
-            if (confirm("Deseja voltar para os estilos básicos do tema?")) {
-              ctx.setThemeColor('#0b0f19');
-              ctx.setTextColor('#ffffff');
-              ctx.setCtaColor('#22c55e');
-              ctx.setBorderRadius(16);
-              ctx.setHasImageBorder(true);
-              ctx.setFontSizeTitulo(28);
-              ctx.setFontSizeSubtitulo(14);
-              ctx.setCtaSize('large');
-              ctx.setCtaWidth(100);
-              ctx.showToast('Estilos básicos restaurados.');
-            }
-          }}
+          onClick={onRequestReset}
           className="bg-slate-950 cursor-pointer hover:bg-slate-850 text-slate-400 hover:text-white border border-slate-800 rounded-xl px-3 py-3 transition-all"
         >
           <RotateCcw className="w-4.5 h-4.5" />

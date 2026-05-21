@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { ArrowRight, Trash2, AlertTriangle, XIcon } from 'lucide-react';
+import { Trash2, AlertTriangle, XIcon } from 'lucide-react';
 import { Presell } from '../types/presell';
 
 interface AllPresellsModalProps {
   presells: Presell[];
   activeId: string | null;
   loadPresell: (item: Presell) => void;
-  handleDuplicatePresell: (item: Presell, e: React.MouseEvent<HTMLButtonElement>) => void;
+  handleDuplicatePresell: (item: Presell) => void;
   setShowAllPresells: (open: boolean) => void;
   isDraft: (item: Presell) => boolean;
   onDelete: (id: string) => void;
@@ -37,10 +37,8 @@ export function AllPresellsModal({
             {presells.length > 0 && (
               <button
                 onClick={() => {
-                  if (confirm('Tem certeza que deseja apagar TODOS os projetos? Esta ação não pode ser desfeita.')) {
-                    onDeleteAll();
-                    setShowAllPresells(false);
-                  }
+                  onDeleteAll();
+                  setShowAllPresells(false);
                 }}
                 className="text-xs cursor-pointer font-bold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/30 px-3 py-1.5 rounded-xl border border-red-500/20 transition-all flex items-center gap-1.5"
               >
@@ -97,7 +95,7 @@ export function AllPresellsModal({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDuplicatePresell(item, e);
+                        handleDuplicatePresell(item);
                       }}
                       className="text-xs cursor-pointer font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition-all"
                     >

@@ -1,14 +1,23 @@
 'use client';
 
-export type Language = 'pt' | 'en' | 'es';
+export type Language = 'pt' | 'en';
 
 export interface FAQItem {
   question: string;
   answer: string;
 }
 
+export type TimerStyle = 'classic' | 'cards' | 'glass' | 'urgency';
+
+export interface HeaderMenuItem {
+  id: string;
+  label: string;
+  url: string;
+  icon: 'home' | 'star' | 'shield' | 'cart' | 'phone' | 'mail';
+}
+
 export interface Presell {
-  id: string | number;
+  id: string;
   titulo: string;
   subtitulo: string;
   imageUrl: string;
@@ -29,6 +38,7 @@ export interface Presell {
   timerBgColor: string;
   timerTextColor: string;
   timerBorderRadius: number;
+  timerStyle?: TimerStyle;
   avisoEnabled: boolean;
   avisoTopo: string;
   avisoPulse: boolean;
@@ -49,6 +59,7 @@ export interface Presell {
   headerEnabled: boolean;
   headerBrand: string;
   headerMenuRaw: string;
+  headerMenuItems?: HeaderMenuItem[];
   headerBgColor: string;
   headerTextColor: string;
   contentAlignment: 'left' | 'center' | 'right';
@@ -64,4 +75,5 @@ export interface Presell {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;
+  language?: Language;
 }

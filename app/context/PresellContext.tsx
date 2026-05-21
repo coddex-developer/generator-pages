@@ -1,11 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Presell, FAQItem, Language } from '../types/presell';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import { Presell, FAQItem, HeaderMenuItem, Language, TimerStyle } from '../types/presell';
 import { translations } from './i18n';
 
 export const defaultTemplate: Presell = {
-  id: Math.floor(Math.random() * 10000),
+  id: "default",
   titulo: 'Como faturar até **[R$ 10.000]{#22c55e}** no mercado digital sem aparecer',
   subtitulo: 'Aprenda os **três passos práticos** que os maiores afiliados ocultos usam para vender todos os dias sem investir fortunas em tráfego.',
   imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop',
@@ -31,6 +31,7 @@ export const defaultTemplate: Presell = {
   timerBgColor: '#020617',
   timerTextColor: '#ffffff',
   timerBorderRadius: 12,
+  timerStyle: 'classic',
 
   // Aviso default
   avisoEnabled: true,
@@ -57,6 +58,10 @@ export const defaultTemplate: Presell = {
   headerEnabled: true,
   headerBrand: 'FastPresell',
   headerMenuRaw: 'Sobre,Oferta,Contato',
+  headerMenuItems: [
+    { id: 'menu_1', label: 'Sobre', url: '#offer', icon: 'home' },
+    { id: 'menu_2', label: 'Oferta', url: '#offer', icon: 'star' }
+  ],
   headerBgColor: '#020617',
   headerTextColor: '#ffffff',
   contentAlignment: 'center',
@@ -71,7 +76,11 @@ export const defaultTemplate: Presell = {
   ctaSize: 'large',
   ctaWidth: 100,
   faqFontSize: 11,
-  faqAnswerFontSize: 10
+  faqAnswerFontSize: 10,
+  seoTitle: 'Treinamento de Afiliados Ocultos',
+  seoDescription: 'Aprenda um metodo pratico para vender no mercado digital sem aparecer e com baixo investimento inicial.',
+  seoKeywords: 'afiliados, marketing digital, vendas online, presell',
+  language: 'pt'
 };
 
 interface PresellContextData {
@@ -102,6 +111,7 @@ interface PresellContextData {
   timerBgColor: string; setTimerBgColor: (v: string) => void;
   timerTextColor: string; setTimerTextColor: (v: string) => void;
   timerBorderRadius: number; setTimerBorderRadius: (v: number) => void;
+  timerStyle: TimerStyle; setTimerStyle: (v: TimerStyle) => void;
   
   // Aviso State
   avisoEnabled: boolean; setAvisoEnabled: (v: boolean) => void;
@@ -130,6 +140,7 @@ interface PresellContextData {
   headerEnabled: boolean; setHeaderEnabled: (v: boolean) => void;
   headerBrand: string; setHeaderBrand: (v: string) => void;
   headerMenuRaw: string; setHeaderMenuRaw: (v: string) => void;
+  headerMenuItems: HeaderMenuItem[]; setHeaderMenuItems: (v: HeaderMenuItem[]) => void;
   headerBgColor: string; setHeaderBgColor: (v: string) => void;
   headerTextColor: string; setHeaderTextColor: (v: string) => void;
   contentAlignment: 'left' | 'center' | 'right'; setContentAlignment: (v: 'left' | 'center' | 'right') => void;
@@ -199,6 +210,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
   const [timerBgColor, setTimerBgColor] = useState<string>('#020617');
   const [timerTextColor, setTimerTextColor] = useState<string>('#ffffff');
   const [timerBorderRadius, setTimerBorderRadius] = useState<number>(12);
+  const [timerStyle, setTimerStyle] = useState<TimerStyle>('classic');
 
   // Aviso Superior
   const [avisoEnabled, setAvisoEnabled] = useState<boolean>(true);
@@ -227,6 +239,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
   const [headerEnabled, setHeaderEnabled] = useState<boolean>(true);
   const [headerBrand, setHeaderBrand] = useState<string>('FastPresell');
   const [headerMenuRaw, setHeaderMenuRaw] = useState<string>('Sobre,Oferta,Contato');
+  const [headerMenuItems, setHeaderMenuItems] = useState<HeaderMenuItem[]>(defaultTemplate.headerMenuItems || []);
   const [headerBgColor, setHeaderBgColor] = useState<string>('#020617');
   const [headerTextColor, setHeaderTextColor] = useState<string>('#ffffff');
   const [contentAlignment, setContentAlignment] = useState<'left' | 'center' | 'right'>('center');
@@ -242,6 +255,11 @@ export function PresellProvider({ children }: { children: ReactNode }) {
   const [ctaWidth, setCtaWidth] = useState<number>(100);
   const [faqFontSize, setFaqFontSize] = useState<number>(11);
   const [faqAnswerFontSize, setFaqAnswerFontSize] = useState<number>(10);
+
+  const [seoTitle, setSeoTitle] = useState<string>('');
+  const [seoDescription, setSeoDescription] = useState<string>('');
+  const [seoKeywords, setSeoKeywords] = useState<string>('');
+  const [lang, setLang] = useState<Language>('pt');
 
   // App UI
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -274,6 +292,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     setTimerBgColor(item.timerBgColor || '#020617');
     setTimerTextColor(item.timerTextColor || '#ffffff');
     setTimerBorderRadius(item.timerBorderRadius !== undefined ? item.timerBorderRadius : 12);
+    setTimerStyle(item.timerStyle || 'classic');
 
     setAvisoEnabled(item.avisoEnabled !== false);
     setAvisoTopo(item.avisoTopo || '');
@@ -298,6 +317,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     setHeaderEnabled(item.headerEnabled !== false);
     setHeaderBrand(item.headerBrand || 'FastPresell');
     setHeaderMenuRaw(item.headerMenuRaw || 'Sobre,Oferta,Contato');
+    setHeaderMenuItems(item.headerMenuItems || []);
     setHeaderBgColor(item.headerBgColor || '#020617');
     setHeaderTextColor(item.headerTextColor || '#ffffff');
     setContentAlignment(item.contentAlignment || 'center');
@@ -311,33 +331,40 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     setCtaWidth(item.ctaWidth !== undefined ? item.ctaWidth : 100);
     setFaqFontSize(item.faqFontSize !== undefined ? item.faqFontSize : 11);
     setFaqAnswerFontSize(item.faqAnswerFontSize !== undefined ? item.faqAnswerFontSize : 10);
+    setSeoTitle(item.seoTitle || '');
+    setSeoDescription(item.seoDescription || item.subtitulo || '');
+    setSeoKeywords(item.seoKeywords || '');
+    setLang(item.language || 'pt');
 
     setHasUnsavedChanges(false);
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('v3_presell_items');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as Presell[];
-        setPresells(parsed);
-        if (parsed.length > 0) {
-          loadPresell(parsed[0]);
-        } else {
+    const initId = window.setTimeout(() => {
+      const saved = localStorage.getItem('v3_presell_items');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as Presell[];
+          setPresells(parsed);
+          if (parsed.length > 0) {
+            loadPresell(parsed[0]);
+          } else {
+            setPresells([defaultTemplate]);
+            localStorage.setItem('v3_presell_items', JSON.stringify([defaultTemplate]));
+            loadPresell(defaultTemplate);
+          }
+        } catch {
           setPresells([defaultTemplate]);
           localStorage.setItem('v3_presell_items', JSON.stringify([defaultTemplate]));
           loadPresell(defaultTemplate);
         }
-      } catch (err) {
+      } else {
         setPresells([defaultTemplate]);
         localStorage.setItem('v3_presell_items', JSON.stringify([defaultTemplate]));
         loadPresell(defaultTemplate);
       }
-    } else {
-      setPresells([defaultTemplate]);
-      localStorage.setItem('v3_presell_items', JSON.stringify([defaultTemplate]));
-      loadPresell(defaultTemplate);
-    }
+    }, 0);
+    return () => window.clearTimeout(initId);
   }, []);
 
   const handleNewClick = () => {
@@ -365,7 +392,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
 
   const handleSavePresell = () => {
     if (!titulo || !ctaLink) {
-      alert('Por favor, preencha o Título Principal e o Link de Destino do CTA para salvar o seu projeto.');
+      showToast('Preencha o titulo principal e o link de destino do CTA.');
       return;
     }
 
@@ -394,6 +421,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       timerBgColor,
       timerTextColor,
       timerBorderRadius,
+      timerStyle,
       avisoEnabled,
       avisoTopo,
       avisoPulse,
@@ -414,6 +442,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       headerEnabled,
       headerBrand,
       headerMenuRaw,
+      headerMenuItems,
       headerBgColor,
       headerTextColor,
       contentAlignment,
@@ -425,7 +454,11 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       ctaSize,
       ctaWidth,
       faqFontSize,
-      faqAnswerFontSize
+      faqAnswerFontSize,
+      seoTitle,
+      seoDescription,
+      seoKeywords,
+      language: lang
     };
 
     let updatedList: Presell[];
@@ -439,7 +472,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     setPresells(updatedList);
     localStorage.setItem('v3_presell_items', JSON.stringify(updatedList));
     setHasUnsavedChanges(false);
-    showToast(isNew ? '✨ Presell criada com sucesso!' : '💾 Alterações gravadas!');
+    showToast(isNew ? 'Presell criada com sucesso.' : 'Alterações gravadas.');
   };
 
   const handleDeletePresell = (id: string) => {
@@ -454,14 +487,14 @@ export function PresellProvider({ children }: { children: ReactNode }) {
         handleNewClick();
       }
     }
-    showToast('🗑️ Presell excluída permanentemente!');
+    showToast('Presell excluída permanentemente.');
   };
 
   const handleDeleteAllPresells = () => {
     setPresells([]);
     localStorage.removeItem('v3_presell_items');
     handleNewClick();
-    showToast('🗑️ Todos os projetos foram excluídos!');
+    showToast('Todos os projetos foram excluídos.');
   };
 
   const handleDuplicatePresell = (item: Presell) => {
@@ -488,6 +521,10 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     return draftFromFields;
   };
 
+  const t = useMemo(() => {
+    return (key: keyof typeof translations['en']) => translations[lang]?.[key] || translations.en[key] || key;
+  }, [lang]);
+
   return (
     <PresellContext.Provider value={{
       presells, setPresells,
@@ -511,6 +548,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       timerBgColor, setTimerBgColor,
       timerTextColor, setTimerTextColor,
       timerBorderRadius, setTimerBorderRadius,
+      timerStyle, setTimerStyle,
       avisoEnabled, setAvisoEnabled,
       avisoTopo, setAvisoTopo,
       avisoPulse, setAvisoPulse,
@@ -531,6 +569,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       headerEnabled, setHeaderEnabled,
       headerBrand, setHeaderBrand,
       headerMenuRaw, setHeaderMenuRaw,
+      headerMenuItems, setHeaderMenuItems,
       headerBgColor, setHeaderBgColor,
       headerTextColor, setHeaderTextColor,
       contentAlignment, setContentAlignment,
@@ -543,6 +582,11 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       ctaWidth, setCtaWidth,
       faqFontSize, setFaqFontSize,
       faqAnswerFontSize, setFaqAnswerFontSize,
+      seoTitle, setSeoTitle,
+      seoDescription, setSeoDescription,
+      seoKeywords, setSeoKeywords,
+      lang, setLang,
+      t,
       toastMessage, showToast,
       hasUnsavedChanges, setHasUnsavedChanges,
       loadPresell, handleNewClick, handleSavePresell, handleDeletePresell, handleDeleteAllPresells, handleDuplicatePresell, isDraftCard
