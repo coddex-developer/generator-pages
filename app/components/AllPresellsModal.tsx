@@ -106,7 +106,7 @@ export function AllPresellsModal({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDelete(item.id);
+                      onDelete(String(item.id));
                     }}
                     title="Excluir Presell"
                     className="p-2 cursor-pointer rounded-xl bg-slate-800/50 hover:bg-red-900/40 text-slate-400 hover:text-red-400 transition-colors"
