@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
-import { Presell, FAQItem, HeaderMenuItem, Language, TimerStyle } from '../types/presell';
+import { Presell, FAQItem, HeaderMenuItem, Language, TimerStyle, CtaEffect, FooterStyle, PresellIcon } from '../types/presell';
 import { translations } from './i18n';
 
 export const defaultTemplate: Presell = {
@@ -12,6 +12,7 @@ export const defaultTemplate: Presell = {
   ctaText: 'SIM! QUERO ACESSO IMEDIATO',
   ctaLink: 'https://checkout.exemplo.com/vendas',
   ctaColor: '#22c55e',
+  ctaSupportText: 'Acesso imediato em ambiente seguro. Revise os detalhes antes de finalizar.',
   themeColor: '#0b0f19',
   textColor: '#ffffff',
   borderRadius: 16,
@@ -49,6 +50,14 @@ export const defaultTemplate: Presell = {
   badgeBgColor: '#1e1b4b',
   badgeTextColor: '#c084fc',
 
+  benefitsEnabled: true,
+  benefitsRaw: '**Plano simples** para entender a oferta antes de comprar\n**Passo a passo direto** sem enrolacao\n**Estrutura pronta** para uma decisao mais segura',
+  trustEnabled: true,
+  trustItemsRaw: 'Conteudo objetivo, Ambiente seguro, Sem promessas irreais',
+  guaranteeEnabled: true,
+  guaranteeTitle: 'Decisao segura',
+  guaranteeText: 'Veja os detalhes, confirme se faz sentido para o seu momento e avance apenas quando estiver pronto.',
+
   imageWidth: 100,
   imageAlign: 'center',
   imagePosition: 'bottom',
@@ -71,10 +80,15 @@ export const defaultTemplate: Presell = {
   footerBgColor: '#020617',
   footerTextColor: '#94a3b8',
   footerPosition: 'center',
+  footerStyle: 'glass',
+  footerBrand: 'FastPresell',
+  footerLinksRaw: '[Privacidade](#) | [Termos](#) | [Contato](#)',
+  footerIcon: 'shield',
   
   // Novos campos opcionais
   ctaSize: 'large',
   ctaWidth: 100,
+  ctaEffect: 'shine',
   faqFontSize: 11,
   faqAnswerFontSize: 10,
   seoTitle: 'Treinamento de Afiliados Ocultos',
@@ -96,6 +110,7 @@ interface PresellContextData {
   ctaText: string; setCtaText: (v: string) => void;
   ctaLink: string; setCtaLink: (v: string) => void;
   ctaColor: string; setCtaColor: (v: string) => void;
+  ctaSupportText: string; setCtaSupportText: (v: string) => void;
   themeColor: string; setThemeColor: (v: string) => void;
   textColor: string; setTextColor: (v: string) => void;
   borderRadius: number; setBorderRadius: (v: number) => void;
@@ -129,6 +144,15 @@ interface PresellContextData {
   badgeBgColor: string; setBadgeBgColor: (v: string) => void;
   badgeTextColor: string; setBadgeTextColor: (v: string) => void;
 
+  // Conversion Blocks
+  benefitsEnabled: boolean; setBenefitsEnabled: (v: boolean) => void;
+  benefitsRaw: string; setBenefitsRaw: (v: string) => void;
+  trustEnabled: boolean; setTrustEnabled: (v: boolean) => void;
+  trustItemsRaw: string; setTrustItemsRaw: (v: string) => void;
+  guaranteeEnabled: boolean; setGuaranteeEnabled: (v: boolean) => void;
+  guaranteeTitle: string; setGuaranteeTitle: (v: string) => void;
+  guaranteeText: string; setGuaranteeText: (v: string) => void;
+
   // Image State
   imageWidth: number; setImageWidth: (v: number) => void;
   imageAlign: 'left' | 'center' | 'right'; setImageAlign: (v: 'left' | 'center' | 'right') => void;
@@ -150,10 +174,15 @@ interface PresellContextData {
   footerBgColor: string; setFooterBgColor: (v: string) => void;
   footerTextColor: string; setFooterTextColor: (v: string) => void;
   footerPosition: 'left' | 'center' | 'right'; setFooterPosition: (v: 'left' | 'center' | 'right') => void;
+  footerStyle: FooterStyle; setFooterStyle: (v: FooterStyle) => void;
+  footerBrand: string; setFooterBrand: (v: string) => void;
+  footerLinksRaw: string; setFooterLinksRaw: (v: string) => void;
+  footerIcon: PresellIcon; setFooterIcon: (v: PresellIcon) => void;
   
   // Novos Estados Solicitados
   ctaSize: 'small' | 'medium' | 'large'; setCtaSize: (v: 'small' | 'medium' | 'large') => void;
   ctaWidth: number; setCtaWidth: (v: number) => void;
+  ctaEffect: CtaEffect; setCtaEffect: (v: CtaEffect) => void;
   faqFontSize: number; setFaqFontSize: (v: number) => void;
   faqAnswerFontSize: number; setFaqAnswerFontSize: (v: number) => void;
 
@@ -195,6 +224,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
   const [ctaText, setCtaText] = useState<string>('');
   const [ctaLink, setCtaLink] = useState<string>('');
   const [ctaColor, setCtaColor] = useState<string>('#22c55e');
+  const [ctaSupportText, setCtaSupportText] = useState<string>('');
   const [themeColor, setThemeColor] = useState<string>('#0b0f19');
   const [textColor, setTextColor] = useState<string>('#ffffff');
   const [borderRadius, setBorderRadius] = useState<number>(16);
@@ -228,6 +258,15 @@ export function PresellProvider({ children }: { children: ReactNode }) {
   const [badgeBgColor, setBadgeBgColor] = useState<string>('#1e1b4b');
   const [badgeTextColor, setBadgeTextColor] = useState<string>('#c084fc');
 
+  // Conversion blocks
+  const [benefitsEnabled, setBenefitsEnabled] = useState<boolean>(true);
+  const [benefitsRaw, setBenefitsRaw] = useState<string>('');
+  const [trustEnabled, setTrustEnabled] = useState<boolean>(true);
+  const [trustItemsRaw, setTrustItemsRaw] = useState<string>('');
+  const [guaranteeEnabled, setGuaranteeEnabled] = useState<boolean>(true);
+  const [guaranteeTitle, setGuaranteeTitle] = useState<string>('');
+  const [guaranteeText, setGuaranteeText] = useState<string>('');
+
   // Image Posicionamento
   const [imageWidth, setImageWidth] = useState<number>(100);
   const [imageAlign, setImageAlign] = useState<'left' | 'center' | 'right'>('center');
@@ -249,10 +288,15 @@ export function PresellProvider({ children }: { children: ReactNode }) {
   const [footerBgColor, setFooterBgColor] = useState<string>('#020617');
   const [footerTextColor, setFooterTextColor] = useState<string>('#94a3b8');
   const [footerPosition, setFooterPosition] = useState<'left' | 'center' | 'right'>('center');
+  const [footerStyle, setFooterStyle] = useState<FooterStyle>('glass');
+  const [footerBrand, setFooterBrand] = useState<string>('FastPresell');
+  const [footerLinksRaw, setFooterLinksRaw] = useState<string>('');
+  const [footerIcon, setFooterIcon] = useState<PresellIcon>('shield');
 
   // Novas configurações do CTA e FAQ
   const [ctaSize, setCtaSize] = useState<'small' | 'medium' | 'large'>('large');
   const [ctaWidth, setCtaWidth] = useState<number>(100);
+  const [ctaEffect, setCtaEffect] = useState<CtaEffect>('shine');
   const [faqFontSize, setFaqFontSize] = useState<number>(11);
   const [faqAnswerFontSize, setFaqAnswerFontSize] = useState<number>(10);
 
@@ -278,6 +322,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     setCtaText(item.ctaText || '');
     setCtaLink(item.ctaLink || '');
     setCtaColor(item.ctaColor || '#22c55e');
+    setCtaSupportText(item.ctaSupportText !== undefined ? item.ctaSupportText : defaultTemplate.ctaSupportText || '');
     setThemeColor(item.themeColor || '#0b0f19');
     setTextColor(item.textColor || '#ffffff');
     setBorderRadius(item.borderRadius !== undefined ? item.borderRadius : 16);
@@ -307,6 +352,14 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     setBadgePulse(item.badgePulse === true);
     setBadgeBgColor(item.badgeBgColor || '#1e1b4b');
     setBadgeTextColor(item.badgeTextColor || '#c084fc');
+
+    setBenefitsEnabled(item.benefitsEnabled !== false);
+    setBenefitsRaw(item.benefitsRaw !== undefined ? item.benefitsRaw : defaultTemplate.benefitsRaw || '');
+    setTrustEnabled(item.trustEnabled !== false);
+    setTrustItemsRaw(item.trustItemsRaw !== undefined ? item.trustItemsRaw : defaultTemplate.trustItemsRaw || '');
+    setGuaranteeEnabled(item.guaranteeEnabled !== false);
+    setGuaranteeTitle(item.guaranteeTitle !== undefined ? item.guaranteeTitle : defaultTemplate.guaranteeTitle || '');
+    setGuaranteeText(item.guaranteeText !== undefined ? item.guaranteeText : defaultTemplate.guaranteeText || '');
     
     setImageWidth(item.imageWidth !== undefined ? item.imageWidth : 100);
     setImageAlign(item.imageAlign || 'center');
@@ -326,9 +379,14 @@ export function PresellProvider({ children }: { children: ReactNode }) {
     setFooterBgColor(item.footerBgColor || '#020617');
     setFooterTextColor(item.footerTextColor || '#94a3b8');
     setFooterPosition(item.footerPosition || 'center');
+    setFooterStyle(item.footerStyle || defaultTemplate.footerStyle || 'glass');
+    setFooterBrand(item.footerBrand !== undefined ? item.footerBrand : item.headerBrand || defaultTemplate.footerBrand || 'FastPresell');
+    setFooterLinksRaw(item.footerLinksRaw !== undefined ? item.footerLinksRaw : defaultTemplate.footerLinksRaw || '');
+    setFooterIcon(item.footerIcon || defaultTemplate.footerIcon || 'shield');
     
     setCtaSize(item.ctaSize || 'large');
     setCtaWidth(item.ctaWidth !== undefined ? item.ctaWidth : 100);
+    setCtaEffect(item.ctaEffect || defaultTemplate.ctaEffect || 'shine');
     setFaqFontSize(item.faqFontSize !== undefined ? item.faqFontSize : 11);
     setFaqAnswerFontSize(item.faqAnswerFontSize !== undefined ? item.faqAnswerFontSize : 10);
     setSeoTitle(item.seoTitle || '');
@@ -407,6 +465,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       ctaText: ctaText || 'CLIQUE PARA ACESSAR',
       ctaLink,
       ctaColor,
+      ctaSupportText,
       themeColor,
       textColor,
       borderRadius,
@@ -434,6 +493,13 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       badgePulse,
       badgeBgColor,
       badgeTextColor,
+      benefitsEnabled,
+      benefitsRaw,
+      trustEnabled,
+      trustItemsRaw,
+      guaranteeEnabled,
+      guaranteeTitle,
+      guaranteeText,
       imageWidth,
       imageAlign,
       imagePosition,
@@ -451,8 +517,13 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       footerBgColor,
       footerTextColor,
       footerPosition,
+      footerStyle,
+      footerBrand,
+      footerLinksRaw,
+      footerIcon,
       ctaSize,
       ctaWidth,
+      ctaEffect,
       faqFontSize,
       faqAnswerFontSize,
       seoTitle,
@@ -535,6 +606,7 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       ctaText, setCtaText,
       ctaLink, setCtaLink,
       ctaColor, setCtaColor,
+      ctaSupportText, setCtaSupportText,
       themeColor, setThemeColor,
       textColor, setTextColor,
       borderRadius, setBorderRadius,
@@ -561,6 +633,13 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       badgePulse, setBadgePulse,
       badgeBgColor, setBadgeBgColor,
       badgeTextColor, setBadgeTextColor,
+      benefitsEnabled, setBenefitsEnabled,
+      benefitsRaw, setBenefitsRaw,
+      trustEnabled, setTrustEnabled,
+      trustItemsRaw, setTrustItemsRaw,
+      guaranteeEnabled, setGuaranteeEnabled,
+      guaranteeTitle, setGuaranteeTitle,
+      guaranteeText, setGuaranteeText,
       imageWidth, setImageWidth,
       imageAlign, setImageAlign,
       imagePosition, setImagePosition,
@@ -578,8 +657,13 @@ export function PresellProvider({ children }: { children: ReactNode }) {
       footerBgColor, setFooterBgColor,
       footerTextColor, setFooterTextColor,
       footerPosition, setFooterPosition,
+      footerStyle, setFooterStyle,
+      footerBrand, setFooterBrand,
+      footerLinksRaw, setFooterLinksRaw,
+      footerIcon, setFooterIcon,
       ctaSize, setCtaSize,
       ctaWidth, setCtaWidth,
+      ctaEffect, setCtaEffect,
       faqFontSize, setFaqFontSize,
       faqAnswerFontSize, setFaqAnswerFontSize,
       seoTitle, setSeoTitle,

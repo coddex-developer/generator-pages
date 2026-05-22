@@ -99,7 +99,7 @@ export function TopBar({ setImportModalOpen, onRequestExport, onRequestNew, onOp
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="font-extrabold text-white tracking-tight text-base">RapidPresell</span>
-              <span className="bg-violet-500/10 text-violet-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-violet-500/20">v5.0.0</span>
+              <span className="bg-violet-500/10 text-violet-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-violet-500/20">v6.0.0</span>
             </div>
             <p className="text-[11px] text-slate-400 hidden sm:block">Editor premium, preview fiel e HTML responsivo para Google Ads</p>
           </div>

@@ -8,12 +8,37 @@ export interface FAQItem {
 }
 
 export type TimerStyle = 'classic' | 'cards' | 'glass' | 'urgency';
+export type CtaEffect = 'pulse' | 'shine' | 'float' | 'glow';
+export type FooterStyle = 'minimal' | 'glass' | 'split' | 'brand';
+export type PresellIcon =
+  | 'home'
+  | 'star'
+  | 'shield'
+  | 'cart'
+  | 'phone'
+  | 'mail'
+  | 'check'
+  | 'zap'
+  | 'gift'
+  | 'book'
+  | 'users'
+  | 'lock'
+  | 'message'
+  | 'play'
+  | 'card'
+  | 'globe'
+  | 'award'
+  | 'heart'
+  | 'crown'
+  | 'target'
+  | 'trending'
+  | 'rocket';
 
 export interface HeaderMenuItem {
   id: string;
   label: string;
   url: string;
-  icon: 'home' | 'star' | 'shield' | 'cart' | 'phone' | 'mail';
+  icon: PresellIcon;
 }
 
 export interface Presell {
@@ -24,6 +49,7 @@ export interface Presell {
   ctaText: string;
   ctaLink: string;
   ctaColor: string;
+  ctaSupportText?: string;
   themeColor: string;
   textColor: string;
   borderRadius: number;
@@ -51,6 +77,13 @@ export interface Presell {
   badgePulse: boolean;
   badgeBgColor: string;
   badgeTextColor: string;
+  benefitsEnabled?: boolean;
+  benefitsRaw?: string;
+  trustEnabled?: boolean;
+  trustItemsRaw?: string;
+  guaranteeEnabled?: boolean;
+  guaranteeTitle?: string;
+  guaranteeText?: string;
   imageWidth: number;
   imageAlign: 'left' | 'center' | 'right';
   imagePosition: 'top' | 'middle' | 'bottom';
@@ -68,8 +101,13 @@ export interface Presell {
   footerBgColor: string;
   footerTextColor: string;
   footerPosition: 'left' | 'center' | 'right';
+  footerStyle?: FooterStyle;
+  footerBrand?: string;
+  footerLinksRaw?: string;
+  footerIcon?: PresellIcon;
   ctaSize?: 'small' | 'medium' | 'large';
   ctaWidth?: number;
+  ctaEffect?: CtaEffect;
   faqFontSize?: number;
   faqAnswerFontSize?: number;
   seoTitle?: string;
