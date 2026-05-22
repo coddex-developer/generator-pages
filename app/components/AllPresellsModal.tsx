@@ -118,9 +118,9 @@ export function AllPresellsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-2 backdrop-blur-md sm:p-4">
       <div className="flex max-h-[94vh] w-full max-w-7xl flex-col overflow-hidden rounded-[30px] border border-slate-800 bg-slate-900 shadow-2xl">
-        <div className="relative overflow-hidden border-b border-slate-800 px-4 py-5 sm:px-6">
+        <div className="relative overflow-hidden border-b border-slate-800 px-1 md:px-4 py1 md:py-5">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_0%,rgba(139,92,246,0.25),transparent_34%),radial-gradient(circle_at_88%_10%,rgba(14,165,233,0.18),transparent_28%)] pointer-events-none" />
-          <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="relative flex flex-col-reverse gap-1 sm:gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-violet-300">Central de projetos</p>
               <h3 className="mt-1 flex items-center gap-2 text-xl font-black text-white sm:text-2xl">
@@ -130,7 +130,7 @@ export function AllPresellsModal({
               <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">Gerencie, encontre, duplique e abra seus projetos com uma visao completa de status, link, data e nivel de configuracao.</p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex mt-3 px-2 pt-2 pb-4 justify-between items-center gap-2">
               {presells.length > 0 && (
                 <button
                   onClick={() => {
@@ -152,29 +152,29 @@ export function AllPresellsModal({
             </div>
           </div>
 
-          <div className="relative mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/65 p-4">
+          <div className="relative mt-1 hidden lg:grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/65 px-4 py-1">
               <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Total salvo</p>
               <p className="mt-1 text-2xl font-black text-white">{presells.length}</p>
             </div>
-            <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+            <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-1">
               <p className="text-[10px] font-black uppercase tracking-wider text-emerald-300/80">Prontos</p>
               <p className="mt-1 text-2xl font-black text-white">{readyCount}</p>
             </div>
-            <div className="rounded-3xl border border-amber-500/20 bg-amber-500/10 p-4">
+            <div className="rounded-3xl border border-amber-500/20 bg-amber-500/10 px-4 py-1">
               <p className="text-[10px] font-black uppercase tracking-wider text-amber-300/80">Rascunhos</p>
               <p className="mt-1 text-2xl font-black text-white">{draftCount}</p>
             </div>
-            <div className="rounded-3xl border border-violet-500/20 bg-violet-500/10 p-4">
+            <div className="rounded-3xl border border-violet-500/20 bg-violet-500/10 px-4 py-1">
               <p className="text-[10px] font-black uppercase tracking-wider text-violet-300/80">Media completa</p>
               <p className="mt-1 text-2xl font-black text-white">{averageCompletion}%</p>
             </div>
           </div>
         </div>
 
-        <div className="border-b border-slate-800 bg-slate-950/35 p-4 sm:p-5">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
-            <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-3">
+        <div className="border-b border-slate-800 bg-slate-950/35 p-1">
+          <div className="grid gap-1 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
+            <div className="hidden md:flex min-w-0 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-3">
               <Search className="h-4 w-4 shrink-0 text-slate-500" />
               <input
                 type="text"
@@ -200,7 +200,7 @@ export function AllPresellsModal({
               ))}
             </div>
 
-            <label className="flex items-center gap-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-3 text-xs font-black text-slate-400">
+            <label className="hidden lg:flex items-center gap-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-3 text-xs font-black text-slate-400">
               <SlidersHorizontal className="h-4 w-4 text-slate-500" />
               <select
                 value={sort}

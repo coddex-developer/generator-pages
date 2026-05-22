@@ -187,13 +187,13 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
   } = state;
 
   const titleText = stripHtml(parseMarkdown(seoTitle || titulo || 'Presell'));
-  const descriptionText = stripHtml(parseMarkdown(seoDescription || subtitulo || titulo || 'Oferta exclusiva por tempo limitado.'));
+  const descriptionText = stripHtml(parseMarkdown(seoDescription || subtitulo || titulo || 'Exclusive limited-time offer.'));
   const safeKeywords = escapeHtml(seoKeywords || '');
-  const safeCtaText = escapeHtml(ctaText || (lang === 'pt' ? 'QUERO MEU ACESSO AGORA' : 'GET INSTANT ACCESS'));
+  const safeCtaText = escapeHtml(ctaText || 'GET INSTANT ACCESS');
   const safeCtaLink = escapeHtml(ctaLink || '#');
   const safeHeaderBrand = escapeHtml(headerBrand || 'RapidPresell');
   const safeFooterBrand = escapeHtml(footerBrand || headerBrand || 'RapidPresell');
-  const footerHtml = parseInlineMarkdown(footerText || `${new Date().getFullYear()} - Todos os direitos reservados.`);
+  const footerHtml = parseInlineMarkdown(footerText || `${new Date().getFullYear()} - All rights reserved.`);
   const footerLinksHtml = footerLinksRaw ? renderMenuMarkdown(footerLinksRaw) : '';
   const safeImageUrl = escapeHtml(imageUrl || '');
   const isThemeGradient = themeColor.includes('linear-gradient') || themeColor.includes('radial-gradient');
@@ -233,7 +233,7 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
   };
 
   const benefitsHtml = benefitsEnabled && benefitItems.length > 0 ? `
-    <section class="benefit-grid ${contentAlignClass}" aria-label="${lang === 'pt' ? 'Beneficios principais' : 'Main benefits'}">
+    <section class="benefit-grid ${contentAlignClass}" aria-label="Main benefits">
       ${benefitItems.map((item) => `
         <div class="benefit-item">
           <span class="benefit-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m20 6-11 11-5-5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -243,7 +243,7 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
     </section>` : '';
 
   const trustHtml = trustEnabled && trustItems.length > 0 ? `
-    <div class="trust-strip" aria-label="${lang === 'pt' ? 'Indicadores de confianca' : 'Trust indicators'}">
+    <div class="trust-strip" aria-label="Trust indicators">
       ${trustItems.map((item) => `<span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>${parseInlineMarkdown(item)}</span>`).join('')}
     </div>` : '';
 
@@ -259,10 +259,10 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
   const ctaSupportHtml = ctaSupportText ? `<div class="cta-support markdown-body ${contentAlignClass}">${parseMarkdown(ctaSupportText)}</div>` : '';
 
   const faqHtml = faqList.length > 0 ? `
-    <section class="faq-section" aria-label="${lang === 'pt' ? 'Perguntas frequentes' : 'Frequently asked questions'}">
+    <section class="faq-section" aria-label="Frequently asked questions">
       <div class="faq-heading ${contentAlignClass}">
-        <span>${lang === 'pt' ? 'Perguntas frequentes' : 'Frequently asked questions'}</span>
-        <h2>${lang === 'pt' ? 'Tudo claro antes de avancar' : 'Everything clear before moving forward'}</h2>
+        <span>Frequently asked questions</span>
+        <h2>Everything clear before moving forward</h2>
       </div>
       <div class="faq-list">
         ${faqList.map((item, index) => `
@@ -350,28 +350,28 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
     .mobile-menu a { color: inherit; text-decoration: none; font-weight: 900; padding: 12px 13px; border-radius: 16px; display: inline-flex; align-items: center; gap: 9px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.08); }
     .top-notice { width: 100%; text-align: center; font-size: clamp(12px, 2.8vw, 14px); font-weight: 900; padding: 10px 14px; letter-spacing: .02em; }
     .notice-card { max-width: 760px; margin: 12px auto 0; border-radius: 14px; }
-    .offer-main { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; padding: clamp(30px, 6vw, 72px) clamp(14px, 4vw, 28px); }
-    .offer-card { --flow-gap: clamp(18px, 3.2vw, 28px); --flow-tight: clamp(10px, 1.8vw, 16px); --flow-large: clamp(26px, 4vw, 40px); width: min(100%, 780px); display: flex; flex-direction: column; ${contentAlignment === 'left' ? 'align-items:flex-start;' : contentAlignment === 'right' ? 'align-items:flex-end;' : 'align-items:center;'} color: ${textColor}; border-radius: ${borderRadius}px; }
+    .offer-main { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; padding: clamp(48px, 8vw, 96px) clamp(18px, 5vw, 34px); }
+    .offer-card { --flow-gap: clamp(28px, 5vw, 42px); --flow-tight: clamp(18px, 3vw, 24px); --flow-large: clamp(42px, 7vw, 64px); width: min(100%, 780px); display: flex; flex-direction: column; ${contentAlignment === 'left' ? 'align-items:flex-start;' : contentAlignment === 'right' ? 'align-items:flex-end;' : 'align-items:center;'} color: ${textColor}; border-radius: ${borderRadius}px; }
     .badge-wrap { display: flex; justify-content: center; width: 100%; margin-bottom: 18px; }
     .badge-wrap span { display: inline-flex; border: 1px solid; border-radius: 999px; padding: 7px 13px; font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
-    .offer-image { display: flex; width: 100%; margin: 0 0 24px; }
+    .offer-image { display: flex; width: 100%; margin: 12px 0 38px; }
     .offer-image-frame { position: relative; overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; background: rgba(255,255,255,.05); }
     .offer-image-frame img { width: 100%; height: 100%; display: block; }
     .offer-image.full-bleed { width: min(100vw, 860px); max-width: none; position: relative; left: 50%; transform: translateX(-50%); }
-    h1 { max-width: 760px; margin: 0 0 14px; font-size: min(${fontSizeTitulo}px, 11vw); line-height: 1.08; font-weight: 900; text-wrap: balance; }
-    .subtitle { max-width: 680px; margin: 0 0 24px; font-size: min(${fontSizeSubtitulo}px, 5.2vw); line-height: 1.7; opacity: .9; }
+    h1 { max-width: 760px; margin: 0 0 20px; font-size: min(${fontSizeTitulo}px, 11vw); line-height: 1.08; font-weight: 900; text-wrap: balance; }
+    .subtitle { max-width: 680px; margin: 8px 0 34px; font-size: min(${fontSizeSubtitulo}px, 5.2vw); line-height: 1.9; opacity: .9; }
     .markdown-body :where(p, ul, ol, blockquote, pre, table) { margin: 0 0 .9em; }
     .markdown-body ul, .markdown-body ol { padding-left: 1.3em; }
     .markdown-body a { color: ${ctaColor}; font-weight: 800; }
     .markdown-body code { padding: .15em .35em; border-radius: 6px; background: rgba(0,0,0,.22); }
     .markdown-body pre { overflow: auto; padding: 12px; border-radius: 12px; background: rgba(0,0,0,.28); }
-    .benefit-grid { width: 100%; max-width: 680px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 18px; }
-    .benefit-item { min-width: 0; display: flex; align-items: flex-start; gap: 9px; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,.095), rgba(255,255,255,.035)); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); font-size: clamp(11px, 2.4vw, 13px); font-weight: 800; line-height: 1.35; }
+    .benefit-grid { width: 100%; max-width: 680px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 12px 0 34px; }
+    .benefit-item { min-width: 0; display: flex; align-items: flex-start; gap: 12px; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,.095), rgba(255,255,255,.035)); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); font-size: clamp(11px, 2.4vw, 13px); font-weight: 800; line-height: 1.35; }
     .benefit-item p { margin: 0; }
     .benefit-icon { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 999px; display: inline-grid; place-items: center; color: ${ctaColor}; background: ${ctaColor}18; border: 1px solid ${ctaColor}30; }
-    .trust-strip { width: 100%; max-width: 680px; display: flex; justify-content: ${contentAlignment === 'left' ? 'flex-start' : contentAlignment === 'right' ? 'flex-end' : 'center'}; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; }
+    .trust-strip { width: 100%; max-width: 680px; display: flex; justify-content: ${contentAlignment === 'left' ? 'flex-start' : contentAlignment === 'right' ? 'flex-end' : 'center'}; flex-wrap: wrap; gap: 12px; margin: 12px 0 34px; }
     .trust-strip span { display: inline-flex; align-items: center; gap: 5px; padding: 7px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.07); color: currentColor; opacity: .86; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
-    .timer-box { width: 100%; max-width: 560px; margin: 0 0 24px; padding: 16px; text-align: center; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 18px 44px rgba(0,0,0,.18); }
+    .timer-box { width: 100%; max-width: 560px; margin: 12px 0 36px; padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 18px 44px rgba(0,0,0,.18); }
     .timer-cards .timer-digits > div { min-width: 82px; border-radius: 16px; padding: 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14); }
     .timer-glass { backdrop-filter: blur(18px); background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06)) !important; }
     .timer-urgency { border: 1px solid rgba(248,113,113,.45); box-shadow: 0 20px 48px rgba(239,68,68,.18); }
@@ -380,16 +380,16 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
     .timer-digits { display: flex; justify-content: center; gap: 14px; align-items: center; }
     .timer-digits strong { display: block; font-size: 28px; line-height: 1; }
     .timer-digits small { display: block; margin-top: 4px; font-size: 9px; opacity: .52; font-weight: 800; text-transform: uppercase; }
-    .cta-row { width: 100%; display: flex; margin: 0 0 12px; }
+    .cta-row { width: 100%; display: flex; margin: 10px 0 24px; }
     .cta-button { position: relative; overflow: hidden; width: ${ctaWidth}%; max-width: 100%; display: inline-flex; align-items: center; justify-content: center; text-align: center; color: white; text-decoration: none; padding-left: 18px; padding-right: 18px; border-radius: ${Math.max(6, borderRadius - 4)}px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; background: linear-gradient(135deg, ${ctaColor}, color-mix(in srgb, ${ctaColor} 76%, #ffffff)); box-shadow: 0 16px 32px ${ctaColor}38, inset 0 1px 0 rgba(255,255,255,.22); text-shadow: 0 1px 2px rgba(0,0,0,.28); transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
     .cta-button::after { content: ''; position: absolute; inset: -40% auto -40% -45%; width: 38%; transform: skewX(-18deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,.58), transparent); opacity: 0; pointer-events: none; }
     .cta-button:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 22px 42px ${ctaColor}48, inset 0 1px 0 rgba(255,255,255,.24); }
     .cta-small { min-height: 42px; font-size: 13px; }
     .cta-medium { min-height: 52px; font-size: 15px; }
     .cta-large { min-height: 62px; font-size: min(19px, 4.8vw); }
-    .cta-support { width: 100%; max-width: 600px; margin: 0 0 22px; font-size: clamp(11px, 2.6vw, 13px); line-height: 1.55; opacity: .78; }
+    .cta-support { width: 100%; max-width: 600px; margin: 0 0 34px; font-size: clamp(11px, 2.6vw, 13px); line-height: 1.55; opacity: .78; }
     .cta-support p { margin-bottom: 0; }
-    .guarantee-box { width: 100%; max-width: 680px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; margin: 0 0 24px; padding: 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,.12); background: linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.035)); }
+    .guarantee-box { width: 100%; max-width: 680px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; margin: 16px 0 40px; padding: 18px; border-radius: 18px; border: 1px solid rgba(255,255,255,.12); background: linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.035)); }
     .guarantee-icon { width: 34px; height: 34px; border-radius: 13px; display: grid; place-items: center; color: ${ctaColor}; background: ${ctaColor}18; border: 1px solid ${ctaColor}30; }
     .guarantee-box h3 { margin: 0 0 4px; font-size: 14px; font-weight: 900; }
     .guarantee-box .markdown-body { font-size: 12px; line-height: 1.6; opacity: .78; }
@@ -399,7 +399,7 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
     .cta-effect-float { animation: float-button 3s ease-in-out infinite; }
     .cta-effect-glow { animation: glow-button 2.8s ease-in-out infinite; }
     .pulse-soft { animation: pulse-soft 2.5s infinite; }
-    .faq-section { width: 100%; max-width: 680px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.14); }
+    .faq-section { width: 100%; max-width: 680px; padding-top: 36px; border-top: 1px solid rgba(255,255,255,.14); }
     .faq-section h2 { margin: 0 0 14px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }
     .faq-list { display: grid; gap: 10px; }
     details { border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(0,0,0,.18); overflow: hidden; }
@@ -415,7 +415,7 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
     .faq-list { display: grid; gap: 10px; }
     .faq-item { border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); overflow: hidden; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
     .faq-item[open] { border-color: ${ctaColor}55; background: rgba(255,255,255,.075); }
-    .faq-item summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 15px; font-weight: 900; }
+    .faq-item summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 22px; font-weight: 900; }
     .faq-item summary::after { content: none; }
     .faq-item summary::-webkit-details-marker { display: none; }
     .faq-index { width: 30px; height: 30px; display: inline-grid; place-items: center; border-radius: 11px; color: ${ctaColor}; background: ${ctaColor}18; border: 1px solid ${ctaColor}2e; font-size: 10px; font-weight: 900; }
@@ -424,7 +424,7 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
     .faq-toggle::before, .faq-toggle::after { content: ''; position: absolute; left: 50%; top: 50%; width: 11px; height: 2px; border-radius: 99px; background: currentColor; transform: translate(-50%, -50%); }
     .faq-toggle::after { transform: translate(-50%, -50%) rotate(90deg); }
     .faq-item[open] .faq-toggle { transform: rotate(45deg); border-color: ${ctaColor}66; color: ${ctaColor}; }
-    .faq-item .faq-answer { padding: 0 15px 16px 57px; line-height: 1.68; opacity: .86; }
+    .faq-item .faq-answer { padding: 0 22px 24px 64px; line-height: 1.68; opacity: .86; }
     .site-footer { width: 100%; padding: 18px clamp(14px, 4vw, 28px); color: ${footerTextColor}; background: ${footerBgColor}; border-top: 1px solid rgba(255,255,255,.1); }
     .footer-inner { width: min(100%, 1120px); margin: 0 auto; display: grid; gap: 14px; align-items: center; padding: 0; font-size: 12px; }
     .footer-split .footer-inner, .footer-brand .footer-inner { grid-template-columns: minmax(0, 1fr) auto; }
@@ -451,15 +451,15 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
       .nav-links { display: none; }
       .menu-button { display: grid; }
       .offer-main { align-items: flex-start; padding-top: 30px; padding-bottom: 38px; }
-      .offer-card { width: 100%; --flow-gap: clamp(16px, 5vw, 24px); --flow-tight: clamp(9px, 3vw, 14px); --flow-large: clamp(24px, 7vw, 34px); }
+      .offer-card { width: 100%; --flow-gap: clamp(22px, 6vw, 32px); --flow-tight: clamp(14px, 4vw, 20px); --flow-large: clamp(34px, 9vw, 48px); }
       .offer-image-frame { max-width: 100%; }
       .offer-image.full-bleed { width: calc(100vw - 20px); }
       .benefit-grid { grid-template-columns: 1fr; }
       .trust-strip { justify-content: ${contentAlignment === 'left' ? 'flex-start' : contentAlignment === 'right' ? 'flex-end' : 'center'}; }
       .faq-section { border-radius: 20px; padding: 14px; }
-      .faq-item summary { gap: 9px; padding: 13px; }
+      .faq-item summary { gap: 10px; padding: 17px; }
       .faq-index { width: 26px; height: 26px; border-radius: 9px; }
-      .faq-item .faq-answer { padding: 0 13px 14px 48px; }
+      .faq-item .faq-answer { padding: 0 17px 20px 52px; }
       .timer-box { padding: 14px 12px; }
       .footer-split .footer-inner, .footer-brand .footer-inner { grid-template-columns: 1fr; }
       .footer-links { justify-content: center; }
@@ -489,7 +489,7 @@ export const generateHTML = (state: HtmlGeneratorState, activeId: string | null)
       ${trustHtml}
       ${timerEnabled ? `<section class="timer-box timer-${timerStyle}" style="background-color:${timerBgColor};color:${timerTextColor};border-radius:${timerBorderRadius}px;">
         <p class="timer-label">${escapeHtml(timerText)}</p>
-        <div class="timer-digits"><div><strong id="t-min">00</strong><small>${lang === 'pt' ? 'Minutos' : 'Minutes'}</small></div><span>:</span><div><strong id="t-sec">00</strong><small>${lang === 'pt' ? 'Segundos' : 'Seconds'}</small></div></div>
+        <div class="timer-digits"><div><strong id="t-min">00</strong><small>Minutes</small></div><span>:</span><div><strong id="t-sec">00</strong><small>Seconds</small></div></div>
       </section>` : ''}
       <div class="cta-row ${contentJustifyClass}">
         <a href="${safeCtaLink}" target="_blank" rel="noopener noreferrer nofollow sponsored" class="cta-button ${ctaEffectClass} ${ctaPaddingClass}" aria-label="${safeCtaText}">${safeCtaText}</a>
